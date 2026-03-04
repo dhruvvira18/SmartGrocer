@@ -1,9 +1,16 @@
-from pydantic import BaseModel, EmailStr, field_validator
-from typing import Annotated
+from pydantic import BaseModel, EmailStr, field_validator, Field
+from typing import Optional
+
+class RetailerCreate(BaseModel):
+    business_name: str = Field(..., min_length=2)
+    admin_email: EmailStr
+    admin_password: str
 
 class UserLogin(BaseModel):
     email: EmailStr 
     password: str
+    # this ensures we know WHICH store the login/signup is for
+    retailer_id: Optional[int] = None
 
     @field_validator("password")
     @classmethod
