@@ -16,22 +16,169 @@
   <div class="login-card">
     <div class="logo-text">SmartGrocer</div>
     <h2 style="margin-bottom:5px;">{{ retailer.business_name }}</h2>
-    <p style="color: #666; margin-bottom: 20px;">Login or create your account</p>
+    <p id="flow-label" style="color: #666; margin-bottom: 20px;">Enter your email to get started</p>
 
-    {% if error %}
-    <div class="error-msg">{{ error }}</div>
-    {% endif %}
+    <div id="js-error" class="error-msg" style="display: none; background-color: #fdeaea; color: #b71c1c; border: 1px solid #f5c6cb; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9em;"></div>
 
-    <form action="/shop/{{ retailer.slug }}/login" method="post">
-      <div class="input-group">
-        <input type="email" name="email" placeholder="Email" required>
-      </div>
-      <div class="input-group">
-        <input type="password" name="password" placeholder="Password" required>
-      </div>
-      <button type="submit" class="login-btn">Continue</button>
+    <form action="/shop/{{ retailer.slug }}/login" method="post" id="unified-form" onsubmit="return handleFormSubmit(event)" novalidate>
+        
+        <div id="step1-container">
+            <div class="input-group">
+                <input type="email" id="email" name="email" placeholder="Email" autofocus>
+            </div>
+            <button type="button" class="login-btn" onclick="processStep1()">Continue</button>
+        </div>
+
+        <div id="step2-container" style="display: none;">
+            
+            <button type="button" onclick="resetToStep1()" style="width: 100%; background: none; border: 1px solid #2E7D32; color: #2E7D32; padding: 8px; border-radius: 5px; margin-bottom: 20px; cursor: pointer; font-size: 0.85em; display: flex; justify-content: space-between; align-items: center;">
+                <span id="display-email" style="font-weight: 600;"></span>
+                <span style="font-size: 0.9em; text-decoration: underline;">Change</span>
+            </button>
+
+            <div id="signup-fields" style="display: none;">
+                <div class="input-group">
+                    <input type="text" id="full_name" name="full_name" placeholder="Full Name">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <input type="password" id="password" name="password" placeholder="Password">
+            </div>
+
+            <div id="confirm-field-wrapper" style="display: none;">
+                <div class="input-group">
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm Password">
+                </div>
+            </div>
+
+            <button type="submit" id="submit-btn" class="login-btn">Login</button>
+        </div>
     </form>
   </div>
 
+<script>
+let currentStep = 1;
+
+// Single window.onload to handle server-side errors and state persistence
+window.onload = function() {
+    const backendError = "{{ error if error else '' }}";
+    const showStep2 = "{{ 'true' if show_step2 else 'false' }}";
+    const isSignup = "{{ 'true' if is_signup else 'false' }}";
+    const emailVal = "{{ email_val if email_val else '' }}";
+
+    if (backendError) {
+        showError(backendError);
+        
+        if (showStep2 === 'true') {
+            // Restore email context
+            document.getElementById('email').value = emailVal;
+            document.getElementById('display-email').innerText = emailVal;
+            
+            // Switch UI to Step 2
+            document.getElementById('step1-container').style.display = 'none';
+            document.getElementById('step2-container').style.display = 'block';
+            
+            const label = document.getElementById('flow-label');
+            const submitBtn = document.getElementById('submit-btn');
+
+            if (isSignup === 'true') {
+                document.getElementById('signup-fields').style.display = 'block';
+                document.getElementById('confirm-field-wrapper').style.display = 'block';
+                label.innerText = "Create your account";
+                submitBtn.innerText = "Create Account";
+            } else {
+                label.innerText = "Welcome back!";
+                submitBtn.innerText = "Login";
+            }
+            
+            currentStep = 2;
+            document.getElementById('password').focus();
+        }
+    }
+};
+
+function showError(msg) {
+    const errorDiv = document.getElementById('js-error');
+    errorDiv.innerText = msg;
+    errorDiv.style.display = 'block';
+}
+
+function hideError() {
+    document.getElementById('js-error').style.display = 'none';
+}
+
+function resetToStep1() {
+    // Return UI to Step 1
+    document.getElementById('step2-container').style.display = 'none';
+    document.getElementById('step1-container').style.display = 'block';
+    
+    // Unlock and clear the email field
+    const emailField = document.getElementById('email');
+    emailField.readOnly = false;
+    emailField.value = "";
+    emailField.focus();
+
+    // Reset labels and internal state
+    document.getElementById('flow-label').innerText = "Enter your email to get started";
+    hideError();
+    currentStep = 1;
+}
+
+async function processStep1() {
+    const emailField = document.getElementById('email');
+    const email = emailField.value;
+    
+    if (!email || !email.includes('@')) {
+        showError("Please enter a valid email address.");
+        return;
+    }
+    
+    hideError();
+
+    try {
+        const response = await fetch(`/shop/{{ retailer.slug }}/check-user?email=${email}`);
+        const data = await response.json();
+
+        // UI Transitions
+        document.getElementById('step1-container').style.display = 'none';
+        document.getElementById('step2-container').style.display = 'block';
+        document.getElementById('display-email').innerText = email;
+        emailField.readOnly = true;
+        
+        const label = document.getElementById('flow-label');
+        const submitBtn = document.getElementById('submit-btn');
+
+        if (data.exists) {
+            label.innerText = "Welcome back!";
+            submitBtn.innerText = "Login";
+            document.getElementById('signup-fields').style.display = 'none';
+            document.getElementById('confirm-field-wrapper').style.display = 'none';
+        } else {
+            label.innerText = "Create your account";
+            submitBtn.innerText = "Create Account";
+            document.getElementById('signup-fields').style.display = 'block';
+            document.getElementById('confirm-field-wrapper').style.display = 'block';
+            document.getElementById('full_name').required = true;
+            document.getElementById('confirm_password').required = true;
+        }
+        
+        currentStep = 2;
+        document.getElementById('password').required = true;
+        document.getElementById('password').focus();
+    } catch (e) { 
+        showError("Connection error. Please try again."); 
+    }
+}
+
+function handleFormSubmit(event) {
+    if (currentStep === 1) {
+        event.preventDefault();
+        processStep1();
+        return false;
+    }
+    return true;
+}
+</script>
 </body>
 </html>

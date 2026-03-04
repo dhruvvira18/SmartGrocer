@@ -47,10 +47,14 @@ You are an expert **FastAPI Backend Engineer** working on a Retail/ERP system ca
 * **Slug-Based Routing:** Customer sites must use the `{slug}` parameter to identify the retailer context.
 * **Composite Uniqueness:** User emails are unique *per retailer*, not globally.
 
-## 6. Registration & Auth Logic
-* **Inline Onboarding:** The customer login flow is a hybrid. If the email doesn't exist for that retailer, automatically create a 'shopper' account.
-* **Admin Security:** Admin accounts must be created through a controlled onboarding flow, not the public customer login.
+## 6. Hybrid Registration & Auth Flow (Manual State Reset)
+* **Change Email Logic:** The "Change Email" button must use a JavaScript `resetToStep1()` function rather than a page reload.
+* **Reset Requirements:** The reset function must:
+    1. Set `email` input to `readOnly = false`.
+    2. Toggle visibility back to `step1-container`.
+    3. Clear existing error messages and reset `currentStep` to 1.
+* **Context Preservation:** Ensure the `{slug}` remains valid in the form action throughout all state changes.
 
-## 7. Mobile-First & PWA Standards
-* **Responsive UI:** Templates must use mobile-first CSS (Bootstrap/Tailwind).
-* **PWA Assets:** Maintain `manifest.json` and `service-worker.js` in `/static` to support "Add to Home Screen" functionality.
+## 7. Mobile & PWA Requirements
+* **Sticky Navigation:** `index.html` uses a fixed navbar; ensure the bottom navigation is implemented for mobile wrap.
+* **Touch Targets:** Buttons must remain large (44px+) for mobile usability.
