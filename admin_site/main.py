@@ -2,16 +2,11 @@ import sys
 from pathlib import Path
 from typing import Annotated
 
-# 1. Setup absolute paths
-# This finds the directory where main.py lives (customer_site)
 BASE_DIR = Path(__file__).resolve().parent 
-# This finds the root directory (the parent of customer_site)
 ROOT_DIR = BASE_DIR.parent 
-
-# Add root to sys.path so we can import database, models, schemas
 sys.path.append(str(ROOT_DIR))
 
-from fastapi import FastAPI, Form, Request, Depends
+from fastapi import FastAPI, Form, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -23,22 +18,13 @@ from database import engine, get_db
 from schemas import UserLogin
 
 models.Base.metadata.create_all(bind=engine)
-
-# 2. Mounting and Templates using absolute paths
 app = FastAPI()
-
-# This tells FastAPI: "Look for 'static' right next to this main.py file"
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
-
-# This tells Jinja2: "Look for 'templates' right next to this main.py file"
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
-
-# Modern Type Aliases
 DbSession = Annotated[Session, Depends(get_db)]
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    # This renders the login page as the default home view
     return templates.TemplateResponse("login.html", {"request": request})
 
 @app.get("/login", response_class=HTMLResponse)
@@ -47,35 +33,25 @@ async def get_login(request: Request):
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(request: Request):
-    # This renders the dashboard page
     return templates.TemplateResponse("dashboard.html", {"request": request})
 
 @app.post("/login")
-async def login(
+async def admin_login(
     request: Request,
     db: DbSession,
-    # We use Form() to extract the data, but label the type for clarity
     email: Annotated[EmailStr, Form()], 
     password: Annotated[str, Form()]
 ):
     try:
-        # Pass the extracted form data into our validator
         credentials = UserLogin(email=email, password=password)
-        
-        user = db.query(models.User).filter(models.User.email == credentials.email).first()
+        user = db.query(models.User).filter(
+            models.User.email == credentials.email,
+            models.User.role == "admin"
+        ).first()
         
         if user and user.password == credentials.password:
             return RedirectResponse(url="/dashboard", status_code=303)
             
-        return templates.TemplateResponse("login.html", {
-            "request": request, 
-            "error": "Invalid email or password."
-        })
-
+        return templates.TemplateResponse("login.html", {"request": request, "error": "Access Denied: Admin only."})
     except ValidationError as e:
-        # Grabbing the first error message from our Pydantic Schema
-        error_msg = e.errors()[0]["msg"]
-        return templates.TemplateResponse("login.html", {
-            "request": request, 
-            "error": error_msg
-        })
+        return templates.TemplateResponse("login.html", {"request": request, "error": e.errors()[0]["msg"]})

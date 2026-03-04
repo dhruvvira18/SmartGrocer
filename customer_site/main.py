@@ -2,16 +2,11 @@ import sys
 from pathlib import Path
 from typing import Annotated
 
-# 1. Setup absolute paths
-# This finds the directory where main.py lives (customer_site)
 BASE_DIR = Path(__file__).resolve().parent 
-# This finds the root directory (the parent of customer_site)
 ROOT_DIR = BASE_DIR.parent 
-
-# Add root to sys.path so we can import database, models, schemas
 sys.path.append(str(ROOT_DIR))
 
-from fastapi import FastAPI, Form, Request, Depends
+from fastapi import FastAPI, Form, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -23,59 +18,55 @@ from database import engine, get_db
 from schemas import UserLogin
 
 models.Base.metadata.create_all(bind=engine)
-
-# 2. Mounting and Templates using absolute paths
 app = FastAPI()
-
-# This tells FastAPI: "Look for 'static' right next to this main.py file"
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
-
-# This tells Jinja2: "Look for 'templates' right next to this main.py file"
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
-
-# Modern Type Aliases
 DbSession = Annotated[Session, Depends(get_db)]
 
-@app.get("/", response_class=HTMLResponse)
-async def home(request: Request):
-    # This renders the login page as the default home view
-    return templates.TemplateResponse("login.html", {"request": request})
+@app.get("/shop/{slug}", response_class=HTMLResponse)
+async def store_front(slug: str, request: Request, db: DbSession):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
+    if not retailer:
+        raise HTTPException(status_code=404, detail="Store not found")
+    return templates.TemplateResponse("login.html", {"request": request, "retailer": retailer})
 
-@app.get("/login", response_class=HTMLResponse)
-async def get_login(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
-
-@app.get("/index", response_class=HTMLResponse)
-async def index(request: Request):
-    # This renders the index page
-    return templates.TemplateResponse("index.html", {"request": request})
-
-@app.post("/login")
-async def login(
+@app.post("/shop/{slug}/login")
+async def login_or_signup(
+    slug: str,
     request: Request,
     db: DbSession,
-    # We use Form() to extract the data, but label the type for clarity
     email: Annotated[EmailStr, Form()], 
     password: Annotated[str, Form()]
 ):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
     try:
-        # Pass the extracted form data into our validator
-        credentials = UserLogin(email=email, password=password)
+        credentials = UserLogin(
+            email=email,
+            password=password,
+            retailer_id=retailer.id
+        )
+        user = db.query(models.User).filter(
+            models.User.email == credentials.email, 
+            models.User.retailer_id == retailer.id
+        ).first()
         
-        user = db.query(models.User).filter(models.User.email == credentials.email).first()
-        
-        if user and user.password == credentials.password:
-            return RedirectResponse(url="/index", status_code=303)
+        # INLINE ONBOARDING LOGIC
+        if not user:
+            # If user doesn't exist at this store, create them (Signup)
+            new_user = models.User(
+                email=credentials.email,
+                password=credentials.password, # TODO: Hash this in production!
+                retailer_id=retailer.id,
+                role="shopper"
+            )
+            db.add(new_user)
+            db.commit()
+            return RedirectResponse(url=f"/shop/{slug}/index", status_code=303)
+
+        if user.password == credentials.password:
+            return RedirectResponse(url=f"/shop/{slug}/index", status_code=303)
             
-        return templates.TemplateResponse("login.html", {
-            "request": request, 
-            "error": "Invalid email or password."
-        })
+        return templates.TemplateResponse("login.html", {"request": request, "retailer": retailer, "error": "Incorrect password."})
 
     except ValidationError as e:
-        # Grabbing the first error message from our Pydantic Schema
-        error_msg = e.errors()[0]["msg"]
-        return templates.TemplateResponse("login.html", {
-            "request": request, 
-            "error": error_msg
-        })
+        return templates.TemplateResponse("login.html", {"request": request, "retailer": retailer, "error": e.errors()[0]["msg"]})
