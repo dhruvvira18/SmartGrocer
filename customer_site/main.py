@@ -31,19 +31,30 @@ async def store_front(slug: str, request: Request, db: DbSession):
     return templates.TemplateResponse("login.html", {"request": request, "retailer": retailer})
 
 @app.get("/shop/{slug}/index", response_class=HTMLResponse)
-async def shop_index(slug: str, request: Request, db: DbSession):
+async def shop_index(slug: str, request: Request, db: DbSession, category: str | None = None):
     # Fetch retailer to ensure the store exists and get branding
     retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
     if not retailer:
         raise HTTPException(status_code=404, detail="Store not found")
     
     # Fetch only THIS retailer's products
-    products = db.query(models.Product).filter(models.Product.retailer_id == retailer.id).all()
+    query = db.query(models.Product).filter(models.Product.retailer_id == retailer.id)
+    if category:
+        query = query.filter(models.Product.category == category)
+    products = query.all()
+
+    # Fetch unique categories for this retailer
+    categories = db.query(models.Product.category).filter(
+        models.Product.retailer_id == retailer.id
+    ).distinct().all()
+    categories = [c[0] for c in categories]
     
     return templates.TemplateResponse("index.html", {
         "request": request, 
         "retailer": retailer,
-        "products": products
+        "products": products,
+        "categories": categories,
+        "active_category": category
     })
 
 @app.get("/shop/{slug}/check-user")

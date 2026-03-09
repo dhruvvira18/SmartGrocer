@@ -15,7 +15,10 @@
             </div>
             <div class="nav-actions">
                 <a href="/shop/{{ retailer.slug }}" class="nav-btn"><i class="far fa-user"></i></a>
-                <a href="#" class="nav-btn"><i class="fas fa-shopping-basket"></i></a>
+                <a href="#" class="nav-btn">
+                    <i class="fas fa-shopping-basket"></i>
+                    <span class="cart-count" id="cart-count">0</span>
+                </a>
             </div>
         </div>
     </nav>
@@ -28,21 +31,74 @@
     </header>
 
     <main class="container">
-        <section class="section">
-            <h2>Our Products</h2>
-            <div class="products-grid">
-                {% for product in products %}
-                <div class="product-card">
-                    <img src="https://via.placeholder.com/100" alt="{{ product.name }}">
-                    <h3>{{ product.name }}</h3>
-                    <p>${{ "%.2f"|format(product.price) }}</p>
-                    <button class="add-cart-btn"><i class="fas fa-plus"></i></button>
+        <div class="shop-layout">
+            <aside class="sidebar">
+                <h3>Categories</h3>
+                <ul class="category-list">
+                    <li class="category-item">
+                        <a href="/shop/{{ retailer.slug }}/index" class="category-link {{ 'active' if not active_category else '' }}">All Products</a>
+                    </li>
+                    {% for category in categories %}
+                    <li class="category-item">
+                        <a href="/shop/{{ retailer.slug }}/index?category={{ category }}" class="category-link {{ 'active' if active_category == category else '' }}">
+                            {{ category }}
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </aside>
+
+            <section class="products-section">
+                <div class="products-grid">
+                    {% for product in products %}
+                    <div class="product-card">
+                        <span class="category-badge">{{ product.category }}</span>
+                        <img src="https://via.placeholder.com/100" alt="{{ product.name }}">
+                        <h3>{{ product.name }}</h3>
+                        <p class="price">${{ "%.2f"|format(product.price) }}</p>
+                        <button class="add-cart-btn" onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }})">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    {% else %}
+                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+                        <p>No products available in this category.</p>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% else %}
-                <p>No products available in this store yet.</p>
-                {% endfor %}
-            </div>
-        </section>
+            </section>
+        </div>
     </main>
+
+    <script>
+        function updateCartUI() {
+            const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+            const totalCount = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-count').innerText = totalCount;
+        }
+
+        function addToCart(productId, name, price) {
+            const cart = JSON.parse(localStorage.getItem('cart') || '{}');
+
+            if (cart[productId]) {
+                cart[productId].quantity += 1;
+            } else {
+                cart[productId] = {
+                    name: name,
+                    price: price,
+                    quantity: 1
+                };
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartUI();
+
+            // Brief animation or feedback could go here
+            console.log(`Added ${name} to cart.`);
+        }
+
+        // Initialize cart UI on load
+        document.addEventListener('DOMContentLoaded', updateCartUI);
+    </script>
 </body>
 </html>

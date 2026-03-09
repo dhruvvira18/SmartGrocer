@@ -35,5 +35,6 @@ class Product(Base):
     name: Mapped[str] = mapped_column(String(100))
     price: Mapped[float] = mapped_column()
     stock: Mapped[int] = mapped_column(default=0)
+    category: Mapped[str] = mapped_column(String(50), default="General")
 
     retailer: Mapped["Retailer"] = relationship(back_populates="products", init=False)
