@@ -5,7 +5,7 @@ class Base(MappedAsDataclass, DeclarativeBase):
     pass
 
 # XAMPP Connection
-engine = create_engine("mysql+mysqlconnector://root@localhost/smartgrocer_db")
+engine = create_engine("mysql+mysqlconnector://root@localhost:3306/smart_grocer")
 SessionLocal = sessionmaker(bind=engine)
 
 def get_db():
