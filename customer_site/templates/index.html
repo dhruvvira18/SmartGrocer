@@ -3,66 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <title>SmartGrocer | Freshness Delivered</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="container nav-container">
-            <div class="logo">
-                <div class="logo-icon">{{ retailer.business_name[:2].upper() }}</div>
-                <span>{{ retailer.business_name }}</span>
+            <div class="nav-left">
+                <button class="menu-btn"><i class="fas fa-bars"></i></button>
+                <div class="logo">
+                    <span class="logo-text">{{ retailer.business_name }}</span>
+                </div>
+                <div class="location-badge">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Mumbai 400001</span>
+                </div>
             </div>
-            <div class="nav-actions">
-                <a href="/shop/{{ retailer.slug }}" class="nav-btn"><i class="far fa-user"></i></a>
-                <a href="#" class="nav-btn">
-                    <i class="fas fa-shopping-basket"></i>
-                    <span class="cart-count" id="cart-count">0</span>
-                </a>
+
+            <div class="nav-right">
+                <div class="nav-search-icon"><i class="fas fa-search"></i></div>
+                <a href="/shop/{{ retailer.slug }}" class="nav-icon-btn"><i class="far fa-user"></i></a>
+                <button class="cart-btn" onclick="toggleCart()">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>My Cart</span>
+                    <span class="cart-badge" id="cart-count">0</span>
+                </button>
             </div>
         </div>
     </nav>
 
-    <header class="hero-section">
-        <div class="container">
-            <h1>Freshness from <span style="color: var(--accent-gold);">{{ retailer.business_name }}</span></h1>
-            <p>Directly to your doorstep.</p>
-        </div>
-    </header>
-
-    <main class="container">
+    <main class="container main-content" id="main-view">
         <div class="shop-layout">
             <aside class="sidebar">
-                <h3>Categories</h3>
-                <ul class="category-list">
-                    <li class="category-item">
-                        <a href="/shop/{{ retailer.slug }}/index" class="category-link {{ 'active' if not active_category else '' }}">All Products</a>
-                    </li>
-                    {% for category in categories %}
-                    <li class="category-item">
-                        <a href="/shop/{{ retailer.slug }}/index?category={{ category }}" class="category-link {{ 'active' if active_category == category else '' }}">
-                            {{ category }}
-                        </a>
-                    </li>
-                    {% endfor %}
-                </ul>
+                <div class="filter-group">
+                    <h3>Filters</h3>
+                    <hr>
+                    <div class="filter-section">
+                        <h4>Categories</h4>
+                        <div class="filter-options">
+                            <label class="filter-option">
+                                <input type="checkbox" checked onchange="filterProducts()">
+                                <span>All Products</span>
+                            </label>
+                            {% for category in categories %}
+                            <label class="filter-option">
+                                <input type="checkbox" name="category" value="{{ category }}" onchange="filterProducts()">
+                                <span>{{ category }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="filter-section">
+                        <h4>Dietary</h4>
+                        <div class="filter-options">
+                            <label class="filter-option">
+                                <input type="checkbox"> <span>Organic</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox"> <span>Gluten-Free</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </aside>
 
             <section class="products-section">
-                <div class="products-grid">
-                    {% for product in products %}
-                    <div class="product-card">
-                        <span class="category-badge">{{ product.category }}</span>
-                        <img src="https://via.placeholder.com/100" alt="{{ product.name }}">
-                        <h3>{{ product.name }}</h3>
-                        <p class="price">${{ "%.2f"|format(product.price) }}</p>
-                        <button class="add-cart-btn" onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }})">
-                            <i class="fas fa-plus"></i>
-                        </button>
+                <div class="products-header">
+                    <div class="search-bar">
+                        <input type="text" id="product-search" placeholder="Search" onkeyup="filterProducts()">
                     </div>
-                    {% else %}
-                    <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-                        <p>No products available in this category.</p>
+                    <div class="sort-dropdown">
+                        <span>Sort by:</span>
+                        <select id="price-sort" onchange="sortProducts()">
+                            <option value="low-high">Price (Low → High)</option>
+                            <option value="high-low">Price (High → Low)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="products-grid" id="products-container">
+                    {% for product in products %}
+                    <div class="product-card" data-name="{{ product.name|lower }}" data-category="{{ product.category }}" data-price="{{ product.price }}">
+                        <div class="product-image">
+                            <img src="https://via.placeholder.com/150/f0fdf4/2e7d32?text={{ product.name[:1] }}" alt="{{ product.name }}">
+                        </div>
+                        <div class="product-info">
+                            <h3>{{ product.name }}</h3>
+                            <div class="rating">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="far fa-star"></i>
+                                <span class="rating-count">(42)</span>
+                            </div>
+                            <p class="price">₹{{ "%.0f"|format(product.price) }}</p>
+                            <button class="add-to-cart-btn" onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }}, 'https://via.placeholder.com/150/f0fdf4/2e7d32?text={{ product.name[:1] }}')">
+                                Add to Cart
+                            </button>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
@@ -70,35 +110,187 @@
         </div>
     </main>
 
+    <!-- Shopping Cart View -->
+    <div class="container cart-view" id="cart-view" style="display: none;">
+        <button class="back-btn" onclick="toggleCart()">← Keep Shopping</button>
+
+        <div class="cart-layout">
+            <div class="cart-items-section">
+                <div class="cart-header">
+                    <h2><i class="fas fa-shopping-cart"></i> Shopping Cart</h2>
+                    <button class="empty-cart-btn" onclick="emptyCart()">Empty Cart</button>
+                </div>
+                <div id="cart-items-list">
+                    <!-- Cart items will be injected here -->
+                </div>
+            </div>
+
+            <aside class="bill-details-section">
+                <div class="bill-card">
+                    <h3>Bill Details</h3>
+                    <div class="bill-row">
+                        <span>Items Total</span>
+                        <span id="items-total">₹0</span>
+                    </div>
+                    <div class="bill-row">
+                        <span>Delivery Fee</span>
+                        <span class="free-text">FREE</span>
+                    </div>
+                    <hr>
+                    <div class="bill-row grand-total">
+                        <span>Grand Total</span>
+                        <span id="grand-total">₹0</span>
+                    </div>
+                    <button class="proceed-btn">Proceed to Pay</button>
+                </div>
+            </aside>
+        </div>
+    </div>
+
     <script>
+        let cart = JSON.parse(localStorage.getItem('cart') || '{}');
+
         function updateCartUI() {
-            const cart = JSON.parse(localStorage.getItem('cart') || '{}');
             const totalCount = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
             document.getElementById('cart-count').innerText = totalCount;
+            renderCartItems();
         }
 
-        function addToCart(productId, name, price) {
-            const cart = JSON.parse(localStorage.getItem('cart') || '{}');
-
+        function addToCart(productId, name, price, image) {
+            console.log('Adding to cart:', productId, name, price);
             if (cart[productId]) {
                 cart[productId].quantity += 1;
             } else {
                 cart[productId] = {
                     name: name,
                     price: price,
+                    image: image,
                     quantity: 1
                 };
             }
-
-            localStorage.setItem('cart', JSON.stringify(cart));
-            updateCartUI();
-
-            // Brief animation or feedback could go here
-            console.log(`Added ${name} to cart.`);
+            saveCart();
+            console.log('Cart after add:', cart);
         }
 
-        // Initialize cart UI on load
-        document.addEventListener('DOMContentLoaded', updateCartUI);
+        function updateQuantity(productId, delta) {
+            if (cart[productId]) {
+                cart[productId].quantity += delta;
+                if (cart[productId].quantity <= 0) {
+                    delete cart[productId];
+                }
+                saveCart();
+            }
+        }
+
+        function removeItem(productId) {
+            delete cart[productId];
+            saveCart();
+        }
+
+        function emptyCart() {
+            cart = {};
+            saveCart();
+        }
+
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        function renderCartItems() {
+            const list = document.getElementById('cart-items-list');
+            if (!list) return;
+
+            list.innerHTML = '';
+            let total = 0;
+
+            Object.keys(cart).forEach(id => {
+                const item = cart[id];
+                total += item.price * item.quantity;
+
+                const itemEl = document.createElement('div');
+                itemEl.className = 'cart-item';
+                itemEl.innerHTML = `
+                    <div class="cart-item-img">
+                        <img src="\${item.image}" alt="\${item.name}">
+                    </div>
+                    <div class="cart-item-info">
+                        <h4>\${item.name}</h4>
+                        <p class="cart-item-price">₹\${item.price}</p>
+                        <div class="cart-item-actions">
+                            <div class="quantity-control">
+                                <button onclick="updateQuantity('\${id}', -1)">-</button>
+                                <span>\${item.quantity}</span>
+                                <button onclick="updateQuantity('\${id}', 1)">+</button>
+                            </div>
+                            <button class="delete-btn" onclick="removeItem('\${id}')">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(itemEl);
+            });
+
+            document.getElementById('items-total').innerText = '₹' + total;
+            document.getElementById('grand-total').innerText = '₹' + total;
+
+            if (Object.keys(cart).length === 0) {
+                list.innerHTML = '<p style="text-align:center; padding: 2rem;">Your cart is empty.</p>';
+            }
+        }
+
+        function toggleCart() {
+            const mainView = document.getElementById('main-view');
+            const cartView = document.getElementById('cart-view');
+            if (cartView.style.display === 'none') {
+                cartView.style.display = 'block';
+                mainView.style.display = 'none';
+                renderCartItems();
+            } else {
+                cartView.style.display = 'none';
+                mainView.style.display = 'block';
+            }
+        }
+
+        function filterProducts() {
+            const searchQuery = document.getElementById('product-search').value.toLowerCase();
+            const selectedCategories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
+            const showAll = selectedCategories.length === 0 || document.querySelector('input[type="checkbox"]:not([name])').checked;
+
+            const cards = document.querySelectorAll('.product-card');
+            cards.forEach(card => {
+                const name = card.dataset.name;
+                const category = card.dataset.category;
+
+                const matchesSearch = name.includes(searchQuery);
+                const matchesCategory = showAll || selectedCategories.includes(category);
+
+                if (matchesSearch && matchesCategory) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function sortProducts() {
+            const container = document.getElementById('products-container');
+            const cards = Array.from(container.querySelectorAll('.product-card'));
+            const sortVal = document.getElementById('price-sort').value;
+
+            cards.sort((a, b) => {
+                const priceA = parseFloat(a.dataset.price);
+                const priceB = parseFloat(b.dataset.price);
+                return sortVal === 'low-high' ? priceA - priceB : priceB - priceA;
+            });
+
+            cards.forEach(card => container.appendChild(card));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateCartUI();
+        });
     </script>
 </body>
 </html>
