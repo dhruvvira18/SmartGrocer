@@ -212,18 +212,18 @@
                 itemEl.className = 'cart-item';
                 itemEl.innerHTML = `
                     <div class="cart-item-img">
-                        <img src="\${item.image}" alt="\${item.name}">
+                        <img src="${item.image}" alt="${item.name}">
                     </div>
                     <div class="cart-item-info">
-                        <h4>\${item.name}</h4>
-                        <p class="cart-item-price">₹\${item.price}</p>
+                        <h4>${item.name}</h4>
+                        <p class="cart-item-price">₹${item.price}</p>
                         <div class="cart-item-actions">
                             <div class="quantity-control">
-                                <button onclick="updateQuantity('\${id}', -1)">-</button>
-                                <span>\${item.quantity}</span>
-                                <button onclick="updateQuantity('\${id}', 1)">+</button>
+                                <button onclick="updateQuantity('${id}', -1)">-</button>
+                                <span>${item.quantity}</span>
+                                <button onclick="updateQuantity('${id}', 1)">+</button>
                             </div>
-                            <button class="delete-btn" onclick="removeItem('\${id}')">
+                            <button class="delete-btn" onclick="removeItem('${id}')">
                                 <i class="fas fa-trash-alt"></i>
                             </button>
                         </div>
