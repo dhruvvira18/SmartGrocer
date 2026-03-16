@@ -5,6 +5,7 @@
     <title>SmartGrocer | Freshness Delivered</title>
     <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar">
@@ -20,8 +21,14 @@
                 </div>
             </div>
 
+            <div class="nav-center">
+                <div class="nav-search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="global-search" placeholder="Search products..." onkeyup="syncSearch(this.value)">
+                </div>
+            </div>
+
             <div class="nav-right">
-                <div class="nav-search-icon"><i class="fas fa-search"></i></div>
                 <a href="/shop/{{ retailer.slug }}" class="nav-icon-btn"><i class="far fa-user"></i></a>
                 <button class="cart-btn" onclick="toggleCart()">
                     <i class="fas fa-shopping-cart"></i>
@@ -65,10 +72,27 @@
             </aside>
 
             <section class="products-section">
+                <div class="department-icons">
+                    <a href="javascript:void(0)" class="dept-icon" onclick="setCategoryFilter('Produce')">
+                        <div class="dept-icon-tile"><i class="fas fa-apple-alt"></i></div>
+                        <span>Produce</span>
+                    </a>
+                    <a href="javascript:void(0)" class="dept-icon" onclick="setCategoryFilter('Dairy')">
+                        <div class="dept-icon-tile"><i class="fas fa-cheese"></i></div>
+                        <span>Dairy</span>
+                    </a>
+                    <a href="javascript:void(0)" class="dept-icon" onclick="setCategoryFilter('Bakery')">
+                        <div class="dept-icon-tile"><i class="fas fa-bread-slice"></i></div>
+                        <span>Bakery</span>
+                    </a>
+                    <a href="javascript:void(0)" class="dept-icon" onclick="setCategoryFilter('Pantry')">
+                        <div class="dept-icon-tile"><i class="fas fa-jar"></i></div>
+                        <span>Pantry</span>
+                    </a>
+                </div>
+
                 <div class="products-header">
-                    <div class="search-bar">
-                        <input type="text" id="product-search" placeholder="Search" onkeyup="filterProducts()">
-                    </div>
+                    <h2 style="font-size: 1.25rem; font-weight: 600;">Our Products</h2>
                     <div class="sort-dropdown">
                         <span>Sort by:</span>
                         <select id="price-sort" onchange="sortProducts()">
@@ -77,6 +101,8 @@
                         </select>
                     </div>
                 </div>
+                <!-- Hidden search for JS to read -->
+                <input type="hidden" id="product-search" value="">
 
                 <div class="products-grid" id="products-container">
                     {% for product in products %}
@@ -247,6 +273,23 @@
                 cartView.style.display = 'none';
                 mainView.style.display = 'block';
             }
+        }
+
+        function syncSearch(val) {
+            document.getElementById('product-search').value = val;
+            filterProducts();
+        }
+
+        function setCategoryFilter(category) {
+            const checkboxes = document.querySelectorAll('input[name="category"]');
+            checkboxes.forEach(cb => {
+                if(cb.value === category) {
+                    cb.checked = true;
+                } else {
+                    cb.checked = false;
+                }
+            });
+            filterProducts();
         }
 
         function filterProducts() {
