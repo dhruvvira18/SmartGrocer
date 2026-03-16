@@ -39,11 +39,18 @@ async def shop_index(slug: str, request: Request, db: DbSession):
     
     # Fetch only THIS retailer's products
     products = db.query(models.Product).filter(models.Product.retailer_id == retailer.id).all()
+
+    # Fetch unique categories for this retailer
+    categories = db.query(models.Product.category).filter(
+        models.Product.retailer_id == retailer.id
+    ).distinct().all()
+    categories = [c[0] for c in categories]
     
     return templates.TemplateResponse("index.html", {
         "request": request, 
         "retailer": retailer,
-        "products": products
+        "products": products,
+        "categories": categories
     })
 
 @app.get("/shop/{slug}/check-user")

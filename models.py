@@ -34,6 +34,11 @@ class Product(Base):
     retailer_id: Mapped[int] = mapped_column(ForeignKey("retailers.id"))
     name: Mapped[str] = mapped_column(String(100))
     price: Mapped[float] = mapped_column()
+    description: Mapped[str] = mapped_column(String(255), default="")
+    image_url: Mapped[str] = mapped_column(String(255), default="")
+    rating: Mapped[float] = mapped_column(default=4.5)
+    review_count: Mapped[int] = mapped_column(default=0)
     stock: Mapped[int] = mapped_column(default=0)
+    category: Mapped[str] = mapped_column(String(50), default="General")
 
     retailer: Mapped["Retailer"] = relationship(back_populates="products", init=False)
