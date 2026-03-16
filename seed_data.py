@@ -17,8 +17,11 @@ def seed_data():
             print(f"Created new retailer: {retailer.business_name}")
         else:
             print(f"Found existing retailer: {retailer.business_name}")
+            # Delete existing products to re-seed cleanly
+            db.query(Product).filter(Product.retailer_id == retailer.id).delete()
+            db.commit()
 
-        # Define 10 sample products
+        # Define vegetarian sample products based on user feedback
         sample_products = [
             Product(
                 retailer_id=retailer.id,
@@ -31,65 +34,65 @@ def seed_data():
             ),
             Product(
                 retailer_id=retailer.id,
-                name="Organic Milk",
-                price=3.50,
-                description="Whole organic milk, 1 gallon.",
-                category="Dairy",
-                image_url="https://img.icons8.com/color/96/milk.png",
-                stock=40
-            ),
-            Product(
-                retailer_id=retailer.id,
-                name="Whole Wheat Bread",
-                price=2.80,
-                description="Freshly baked whole wheat bread.",
-                category="Bakery",
-                image_url="https://img.icons8.com/color/96/bread.png",
-                stock=30
-            ),
-            Product(
-                retailer_id=retailer.id,
-                name="Free Range Eggs",
-                price=4.20,
-                description="Dozen free range brown eggs.",
-                category="Dairy",
-                image_url="https://img.icons8.com/color/96/eggs.png",
+                name="Basmati Rice",
+                price=6.50,
+                description="Premium long-grain Basmati rice.",
+                category="Grains",
+                image_url="https://img.icons8.com/color/96/rice-bowl.png",
                 stock=60
             ),
             Product(
                 retailer_id=retailer.id,
-                name="Bananas",
-                price=0.50,
-                description="Ripe yellow bananas per lb.",
-                category="Produce",
-                image_url="https://img.icons8.com/color/96/banana.png",
-                stock=200
+                name="Lentils (Dal)",
+                price=3.80,
+                description="High-protein yellow lentils.",
+                category="Pulses",
+                image_url="https://img.icons8.com/color/96/vegetarian-food.png",
+                stock=80
             ),
             Product(
                 retailer_id=retailer.id,
-                name="Cheddar Cheese",
+                name="Olive Oil",
+                price=9.20,
+                description="Extra virgin cold-pressed olive oil.",
+                category="Pantry",
+                image_url="https://img.icons8.com/color/96/olive-oil.png",
+                stock=40
+            ),
+            Product(
+                retailer_id=retailer.id,
+                name="Corn Flakes",
+                price=4.50,
+                description="Crispy corn flakes cereal.",
+                category="Pantry",
+                image_url="https://img.icons8.com/color/96/cereal.png",
+                stock=55
+            ),
+            Product(
+                retailer_id=retailer.id,
+                name="Herbal Shampoo",
                 price=5.00,
-                description="Sharp cheddar cheese block.",
-                category="Dairy",
-                image_url="https://img.icons8.com/color/96/cheese.png",
+                description="Natural aloe vera extract shampoo.",
+                category="Personal Care",
+                image_url="https://img.icons8.com/color/96/shampoo.png",
                 stock=25
             ),
             Product(
                 retailer_id=retailer.id,
-                name="Orange Juice",
-                price=4.50,
-                description="100% natural orange juice.",
-                category="Beverages",
-                image_url="https://img.icons8.com/color/96/orange-juice.png",
+                name="Mint Toothpaste",
+                price=3.50,
+                description="Fluoride toothpaste with fresh mint.",
+                category="Personal Care",
+                image_url="https://img.icons8.com/color/96/toothpaste.png",
                 stock=50
             ),
             Product(
                 retailer_id=retailer.id,
-                name="Chicken Breast",
-                price=8.50,
-                description="Boneless skinless chicken breast.",
-                category="Meat",
-                image_url="https://img.icons8.com/color/96/thanksgiving.png",
+                name="Lavender Soap",
+                price=2.50,
+                description="Soothing lavender scent bar soap.",
+                category="Personal Care",
+                image_url="https://img.icons8.com/color/96/soap.png",
                 stock=40
             ),
             Product(
@@ -109,6 +112,24 @@ def seed_data():
                 category="Pantry",
                 image_url="https://img.icons8.com/color/96/tomato.png",
                 stock=80
+            ),
+            Product(
+                retailer_id=retailer.id,
+                name="Bananas",
+                price=0.50,
+                description="Ripe yellow bananas per lb.",
+                category="Produce",
+                image_url="https://img.icons8.com/color/96/banana.png",
+                stock=200
+            ),
+            Product(
+                retailer_id=retailer.id,
+                name="Organic Milk",
+                price=3.50,
+                description="Whole organic milk, 1 gallon.",
+                category="Dairy",
+                image_url="https://img.icons8.com/color/96/milk.png",
+                stock=40
             )
         ]
 
