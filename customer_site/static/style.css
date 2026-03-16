@@ -35,7 +35,7 @@ body {
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background-color: #f7f9f7; /* Matching light background */
+  background-color: #e8f5e9;
 }
 
 .organic-bg {
@@ -46,26 +46,28 @@ body {
   height: 100%;
   z-index: 0;
   /* Simulating organic corner shapes based on provided image */
-  background: radial-gradient(circle at top right, rgba(162, 224, 174, 0.3) 0%, transparent 40%),
-              radial-gradient(circle at bottom left, rgba(162, 224, 174, 0.3) 0%, transparent 40%);
+  background: radial-gradient(circle at top right, rgba(162, 224, 174, 0.4) 0%, transparent 50%),
+              radial-gradient(circle at bottom left, rgba(162, 224, 174, 0.4) 0%, transparent 50%);
 }
 
 .login-card {
-  width: 400px; /* Slightly wider */
-  padding: 40px; /* More padding */
+  width: 400px;
+  padding: 40px;
   border-radius: 16px;
-  background: #ffffff;
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05); /* Softer shadow */
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   z-index: 1;
   text-align: center;
-  /* Removing blur for clean solid background shown in mock */
 }
 
 .logo-text {
   font-size: 28px;
   font-weight: 600;
   color: var(--primary);
-  margin-bottom: 5px; /* closer to h2 */
+  margin-bottom: 5px;
 }
 .login-card h2 {
     font-size: 20px;
@@ -82,10 +84,9 @@ body {
 
 .floating-input {
   width: 100%;
-  /* Padding adjusted for standard input rather than pure floating label */
-  padding: 14px 14px;
+  padding: 20px 14px 8px 14px;
   border-radius: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(46, 125, 50, 0.3);
   outline: none;
   transition: all 0.3s ease;
   font-family: inherit;
@@ -95,18 +96,28 @@ body {
 
 .floating-input:focus {
   border-color: var(--secondary);
-  box-shadow: 0 0 0 4px rgba(102, 187, 106, 0.25);
+  box-shadow: 0 0 0 4px rgba(102, 187, 106, 0.15);
 }
 
-/* Convert back to standard placeholder based on the mock */
 .floating-input::placeholder {
-  color: #777;
-  opacity: 1;
+  color: transparent;
 }
 
-/* Hide floating label entirely to match simple placeholder design from image */
 .floating-label {
-  display: none;
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  font-size: 14px;
+  color: #777;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+.floating-input:focus ~ .floating-label,
+.floating-input:not(:placeholder-shown) ~ .floating-label {
+  top: 6px;
+  font-size: 11px;
+  color: var(--primary);
 }
 
 .login-btn {

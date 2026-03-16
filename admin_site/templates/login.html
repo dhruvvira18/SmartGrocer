@@ -15,10 +15,12 @@
     {% if error %}<p style="color:red; margin-bottom:10px;">{{ error }}</p>{% endif %}
     <form action="/login" method="post">
       <div class="input-group">
-        <input type="email" name="email" id="email" class="floating-input" placeholder="Admin Email" required>
+        <input type="email" name="email" id="email" class="floating-input" placeholder=" " required>
+        <label for="email" class="floating-label">Admin Email</label>
       </div>
       <div class="input-group">
-        <input type="password" name="password" id="password" class="floating-input" placeholder="Password" required>
+        <input type="password" name="password" id="password" class="floating-input" placeholder=" " required>
+        <label for="password" class="floating-label">Password</label>
       </div>
       <button type="submit" class="login-btn">Enter Dashboard</button>
     </form>
