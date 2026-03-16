@@ -50,11 +50,11 @@ def seed_data():
             Product(retailer_id=retailer.id, name="Sunflower Oil", price=160, description="Refined sunflower oil, 1 liter.", category="Pantry", image_url="https://img.icons8.com/color/96/bottle-of-water.png", stock=120),
             Product(retailer_id=retailer.id, name="Corn Flakes", price=180, description="Crispy corn flakes cereal, 500g.", category="Pantry", image_url="https://img.icons8.com/color/96/cereal.png", stock=55),
             Product(retailer_id=retailer.id, name="Pasta", price=60, description="Italian spaghetti pasta, 500g.", category="Pantry", image_url="https://img.icons8.com/color/96/spaghetti.png", stock=100),
-            Product(retailer_id=retailer.id, name="Tomato Sauce", price=110, description="Classic tomato ketchup, 500g.", category="Pantry", image_url="https://img.icons8.com/color/96/ketchup.png", stock=80),
+            Product(retailer_id=retailer.id, name="Tomato Sauce", price=110, description="Classic tomato ketchup, 500g.", category="Pantry", image_url="https://img.icons8.com/color/96/tomato.png", stock=80),
             Product(retailer_id=retailer.id, name="Salt", price=25, description="Iodized table salt, 1kg.", category="Pantry", image_url="https://img.icons8.com/color/96/salt-shaker.png", stock=200),
             Product(retailer_id=retailer.id, name="Sugar", price=45, description="Refined white sugar, 1kg.", category="Pantry", image_url="https://img.icons8.com/color/96/sugar-cubes.png", stock=180),
             Product(retailer_id=retailer.id, name="Green Tea", price=220, description="Organic green tea bags, box of 25.", category="Beverages", image_url="https://img.icons8.com/color/96/tea.png", stock=60),
-            Product(retailer_id=retailer.id, name="Filter Coffee", price=150, description="South Indian filter coffee powder, 250g.", category="Beverages", image_url="https://img.icons8.com/color/96/coffee-beans.png", stock=70),
+            Product(retailer_id=retailer.id, name="Filter Coffee", price=150, description="South Indian filter coffee powder, 250g.", category="Beverages", image_url="https://img.icons8.com/color/96/coffee.png", stock=70),
             Product(retailer_id=retailer.id, name="Orange Juice", price=120, description="100% natural orange juice, 1 liter.", category="Beverages", image_url="https://img.icons8.com/color/96/orange-juice.png", stock=50),
 
             # Snacks
@@ -68,12 +68,12 @@ def seed_data():
             Product(retailer_id=retailer.id, name="Mint Toothpaste", price=90, description="Fluoride toothpaste with fresh mint, 150g.", category="Personal Care", image_url="https://img.icons8.com/color/96/toothpaste.png", stock=100),
             Product(retailer_id=retailer.id, name="Lavender Soap", price=45, description="Soothing lavender scent bar soap, 100g.", category="Personal Care", image_url="https://img.icons8.com/color/96/soap.png", stock=120),
             Product(retailer_id=retailer.id, name="Sandalwood Soap", price=60, description="Premium sandalwood bar soap, 100g.", category="Personal Care", image_url="https://img.icons8.com/color/96/soap.png", stock=80),
-            Product(retailer_id=retailer.id, name="Hand Wash", price=110, description="Antibacterial liquid hand wash, 250ml.", category="Personal Care", image_url="https://img.icons8.com/color/96/liquid-soap.png", stock=90),
+            Product(retailer_id=retailer.id, name="Hand Wash", price=110, description="Antibacterial liquid hand wash, 250ml.", category="Personal Care", image_url="https://img.icons8.com/color/96/soap-dispenser.png", stock=90),
 
             # Household
             Product(retailer_id=retailer.id, name="Dishwashing Liquid", price=80, description="Lemon scented dishwashing liquid, 500ml.", category="Household", image_url="https://img.icons8.com/color/96/washing-machine.png", stock=100),
             Product(retailer_id=retailer.id, name="Laundry Detergent", price=250, description="Front load laundry detergent powder, 1kg.", category="Household", image_url="https://img.icons8.com/color/96/washing-machine.png", stock=80),
-            Product(retailer_id=retailer.id, name="Floor Cleaner", price=150, description="Pine scented surface cleaner, 1 liter.", category="Household", image_url="https://img.icons8.com/color/96/mop.png", stock=70),
+            Product(retailer_id=retailer.id, name="Floor Cleaner", price=150, description="Pine scented surface cleaner, 1 liter.", category="Household", image_url="https://img.icons8.com/color/96/broom.png", stock=70),
             Product(retailer_id=retailer.id, name="Paper Towels", price=120, description="Absorbent kitchen paper rolls, pack of 2.", category="Household", image_url="https://img.icons8.com/color/96/toilet-paper.png", stock=150)
         ]
 
