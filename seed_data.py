@@ -89,7 +89,7 @@ def seed_data():
                 price=8.50,
                 description="Boneless skinless chicken breast.",
                 category="Meat",
-                image_url="https://img.icons8.com/color/96/meat.png",
+                image_url="https://img.icons8.com/color/96/thanksgiving.png",
                 stock=40
             ),
             Product(

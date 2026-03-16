@@ -86,7 +86,7 @@
                     {% for product in products %}
                     <div class="product-card" data-name="{{ product.name|lower }}" data-category="{{ product.category }}" data-price="{{ product.price }}">
                         <div class="product-image">
-                            <img src="https://via.placeholder.com/150/f0fdf4/2e7d32?text={{ product.name[:1] }}" alt="{{ product.name }}">
+                            <img src="{{ product.image_url }}" alt="{{ product.name }}">
                         </div>
                         <div class="product-info">
                             <h3>{{ product.name }}</h3>
@@ -99,7 +99,7 @@
                                 <span class="rating-count">(42)</span>
                             </div>
                             <p class="price">₹{{ "%.0f"|format(product.price) }}</p>
-                            <button class="add-to-cart-btn" onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }}, 'https://via.placeholder.com/150/f0fdf4/2e7d32?text={{ product.name[:1] }}')">
+                            <button class="add-to-cart-btn" onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image_url }}')">
                                 Add to Cart
                             </button>
                         </div>
