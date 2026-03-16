@@ -1,12 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
 /* --- Variables --- */
 :root {
   --primary: #2E7D32;
   --secondary: #66BB6A;
   --accent: #FBC02D;
   --background: #F9FAF7;
-  --section-bg: #F0F7F2;
   --text: #263238;
   --white: #ffffff;
   --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
@@ -35,103 +32,65 @@ body {
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background-color: #e8f5e9;
 }
 
-.organic-bg {
+.wave-bg {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 45%;
   z-index: 0;
-  /* Simulating organic corner shapes based on provided image */
-  background: radial-gradient(circle at top right, rgba(162, 224, 174, 0.4) 0%, transparent 50%),
-              radial-gradient(circle at bottom left, rgba(162, 224, 174, 0.4) 0%, transparent 50%);
 }
 
 .login-card {
-  width: 400px;
-  padding: 40px;
-  border-radius: 16px;
+  width: 380px;
+  padding: 32px;
+  border-radius: 20px;
   background: rgba(255, 255, 255, 0.55);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
   z-index: 1;
   text-align: center;
 }
 
 .logo-text {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 600;
   color: var(--primary);
-  margin-bottom: 5px;
-}
-.login-card h2 {
-    font-size: 20px;
-    color: #263238;
-    margin-bottom: 25px !important;
-    font-weight: 600;
+  margin-bottom: 10px;
 }
 
 .input-group {
   margin-bottom: 15px;
-  position: relative;
   text-align: left;
 }
 
-.floating-input {
+.input-group input {
   width: 100%;
-  padding: 20px 14px 8px 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(46, 125, 50, 0.3);
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
   outline: none;
   transition: all 0.3s ease;
-  font-family: inherit;
-  background: transparent;
-  font-size: 14px;
 }
 
-.floating-input:focus {
+.input-group input:focus {
   border-color: var(--secondary);
-  box-shadow: 0 0 0 4px rgba(102, 187, 106, 0.15);
-}
-
-.floating-input::placeholder {
-  color: transparent;
-}
-
-.floating-label {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  font-size: 14px;
-  color: #777;
-  pointer-events: none;
-  transition: all 0.2s ease;
-}
-
-.floating-input:focus ~ .floating-label,
-.floating-input:not(:placeholder-shown) ~ .floating-label {
-  top: 6px;
-  font-size: 11px;
-  color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(102, 187, 106, 0.25);
 }
 
 .login-btn {
   width: 100%;
-  padding: 14px;
+  padding: 12px;
   border: none;
-  border-radius: 8px; /* Slightly less rounded */
+  border-radius: 12px;
   background: var(--primary);
   color: white;
   font-weight: 600;
   cursor: pointer;
   transition: 0.3s;
-  font-size: 15px;
-  margin-top: 5px;
 }
 
 .login-btn:hover {

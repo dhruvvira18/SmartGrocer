@@ -35,103 +35,65 @@ body {
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background-color: #e8f5e9;
 }
 
-.organic-bg {
+.wave-bg {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
+  height: 45%;
   z-index: 0;
-  /* Simulating organic corner shapes based on provided image */
-  background: radial-gradient(circle at top right, rgba(162, 224, 174, 0.4) 0%, transparent 50%),
-              radial-gradient(circle at bottom left, rgba(162, 224, 174, 0.4) 0%, transparent 50%);
 }
 
 .login-card {
-  width: 400px;
-  padding: 40px;
-  border-radius: 16px;
+  width: 380px;
+  padding: 32px;
+  border-radius: 20px;
   background: rgba(255, 255, 255, 0.55);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
   z-index: 1;
   text-align: center;
 }
 
 .logo-text {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 600;
   color: var(--primary);
-  margin-bottom: 5px;
-}
-.login-card h2 {
-    font-size: 20px;
-    color: #263238;
-    margin-bottom: 25px !important;
-    font-weight: 600;
+  margin-bottom: 10px;
 }
 
 .input-group {
   margin-bottom: 15px;
-  position: relative;
   text-align: left;
 }
 
-.floating-input {
+.input-group input {
   width: 100%;
-  padding: 20px 14px 8px 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(46, 125, 50, 0.3);
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
   outline: none;
   transition: all 0.3s ease;
-  font-family: inherit;
-  background: transparent;
-  font-size: 14px;
 }
 
-.floating-input:focus {
+.input-group input:focus {
   border-color: var(--secondary);
-  box-shadow: 0 0 0 4px rgba(102, 187, 106, 0.15);
-}
-
-.floating-input::placeholder {
-  color: transparent;
-}
-
-.floating-label {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  font-size: 14px;
-  color: #777;
-  pointer-events: none;
-  transition: all 0.2s ease;
-}
-
-.floating-input:focus ~ .floating-label,
-.floating-input:not(:placeholder-shown) ~ .floating-label {
-  top: 6px;
-  font-size: 11px;
-  color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(102, 187, 106, 0.25);
 }
 
 .login-btn {
   width: 100%;
-  padding: 14px;
+  padding: 12px;
   border: none;
-  border-radius: 8px; /* Slightly less rounded */
+  border-radius: 12px;
   background: var(--primary);
   color: white;
   font-weight: 600;
   cursor: pointer;
   transition: 0.3s;
-  font-size: 15px;
-  margin-top: 5px;
 }
 
 .login-btn:hover {
@@ -146,13 +108,13 @@ body {
 }
 
 .navbar {
-  background: #fff;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid #eee;
+  background: var(--white);
+  padding: 1rem 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
 .nav-container {
@@ -161,41 +123,46 @@ body {
   align-items: center;
 }
 
-.nav-left, .nav-right {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-}
-
-.nav-center {
+.nav-left, .nav-center {
     flex: 1;
     display: flex;
     justify-content: center;
-    padding: 0 2rem;
+    margin: 0 2rem;
 }
 
 .nav-search-bar {
+    display: flex;
+    align-items: center;
+    background: var(--section-bg);
+    border-radius: 50px;
+    padding: 0.5rem 1.5rem;
     width: 100%;
     max-width: 500px;
-    position: relative;
+    transition: all 0.3s ease;
+}
+
+.nav-search-bar:focus-within {
+    background: var(--white);
+    box-shadow: 0 0 0 2px var(--primary);
 }
 
 .nav-search-bar input {
-    width: 100%;
-    padding: 10px 20px 10px 40px;
-    border-radius: 20px;
-    border: 1px solid #eee;
-    background: #f9fafb;
+    border: none;
+    background: transparent;
     outline: none;
+    padding: 0.5rem;
+    width: 100%;
     font-family: inherit;
 }
 
 .nav-search-bar i {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #999;
+    color: #666;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
 }
 
 .menu-btn {
@@ -257,9 +224,8 @@ body {
     align-items: center;
     justify-content: center;
     position: absolute;
-    top: -8px;
-    right: -8px;
-    box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+    top: -5px;
+    right: -5px;
 }
 
 /* --- Shop Layout --- */
@@ -324,50 +290,41 @@ body {
     accent-color: #2e7d32;
 }
 
-/* --- Department Icons --- */
+/* --- Products Section --- */
 .department-icons {
     display: flex;
     gap: 1.5rem;
     margin-bottom: 2rem;
     overflow-x: auto;
-    padding-bottom: 10px;
+    padding-bottom: 0.5rem;
 }
 
 .dept-icon {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    min-width: 90px;
-    cursor: pointer;
     text-decoration: none;
-    color: inherit;
+    color: var(--text);
+    min-width: 80px;
+    transition: transform 0.2s;
+}
+
+.dept-icon:hover {
+    transform: translateY(-5px);
 }
 
 .dept-icon-tile {
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
     background: var(--section-bg);
     border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
+    font-size: 1.5rem;
     color: var(--primary);
-    transition: all 0.2s ease;
+    margin-bottom: 0.5rem;
 }
-
-.dept-icon:hover .dept-icon-tile {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(46, 125, 50, 0.15);
-}
-
-.dept-icon span {
-    font-size: 0.9rem;
-    font-weight: 500;
-}
-
-/* --- Products Section --- */
 .products-header {
     display: flex;
     justify-content: space-between;
@@ -462,8 +419,7 @@ body {
     font-size: 1.25rem;
     font-weight: 700;
     color: #111827;
-    margin-bottom: auto; /* Push button to bottom */
-    padding-bottom: 1.25rem;
+    margin-bottom: 1.25rem;
 }
 
 .add-to-cart-btn {

@@ -4,24 +4,19 @@
   <meta charset="UTF-8">
   <title>SmartGrocer | Admin Login</title>
   <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="login-body">
-  <div class="organic-bg"></div>
+  <svg class="wave-bg" viewBox="0 0 1440 320" preserveAspectRatio="none">
+    <path fill="#2E7D32" fill-opacity="0.9" d="M0,160L60,170.7C120,181,240,203,360,197.3C480,192,600,160,720,144C840,128,960,128,1080,138.7C1200,149,1320,171,1380,181.3L1440,192L1440,0L0,0Z"></path>
+  </svg>
 
   <div class="login-card">
     <div class="logo-text">SmartGrocer Admin</div>
     <h2 style="margin-bottom:20px;">Owner Portal</h2>
     {% if error %}<p style="color:red; margin-bottom:10px;">{{ error }}</p>{% endif %}
     <form action="/login" method="post">
-      <div class="input-group">
-        <input type="email" name="email" id="email" class="floating-input" placeholder=" " required>
-        <label for="email" class="floating-label">Admin Email</label>
-      </div>
-      <div class="input-group">
-        <input type="password" name="password" id="password" class="floating-input" placeholder=" " required>
-        <label for="password" class="floating-label">Password</label>
-      </div>
+      <div class="input-group"><input type="email" name="email" placeholder="Admin Email" required></div>
+      <div class="input-group"><input type="password" name="password" placeholder="Password" required></div>
       <button type="submit" class="login-btn">Enter Dashboard</button>
     </form>
   </div>
