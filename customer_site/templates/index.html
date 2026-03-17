@@ -3,21 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <title>SmartGrocer | Freshness Delivered</title>
-    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Side Drawer -->
+    <div id="side-drawer" class="side-drawer">
+        <button class="close-btn" onclick="toggleDrawer()"><i class="fas fa-times"></i></button>
+        <div class="drawer-content">
+            <a href="javascript:void(0)" onclick="navigateTo('daily-deals'); toggleDrawer();"><i class="fas fa-tags"></i> Daily Deals</a>
+            <a href="javascript:void(0)" onclick="navigateTo('our-products'); toggleDrawer();"><i class="fas fa-store"></i> Our Products</a>
+            <a href="javascript:void(0)" onclick="navigateTo('favorites'); toggleDrawer();"><i class="fas fa-heart"></i> Favorites</a>
+            <a href="javascript:void(0)" onclick="openCart(); toggleDrawer();"><i class="fas fa-shopping-cart"></i> My Cart</a>
+            <a href="/shop/{{ retailer.slug }}/profile"><i class="far fa-user"></i> Profile</a>
+            <a href="#"><i class="fas fa-box"></i> My Orders</a>
+            <a href="/shop/{{ retailer.slug }}/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </div>
+    <div id="drawer-overlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
+
     <nav class="navbar">
         <div class="container nav-container">
             <div class="nav-left">
-                <button class="menu-btn"><i class="fas fa-bars"></i></button>
+                <button class="menu-btn" onclick="toggleDrawer()"><i class="fas fa-bars"></i></button>
                 <div class="logo">
                     <span class="logo-text">{{ retailer.business_name }}</span>
-                </div>
-                <div class="location-badge">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>Mumbai 400001</span>
                 </div>
             </div>
 
@@ -29,7 +40,12 @@
             </div>
 
             <div class="nav-right">
-                <a href="/shop/{{ retailer.slug }}" class="nav-icon-btn"><i class="far fa-user"></i></a>
+                <a href="/shop/{{ retailer.slug }}/profile" class="nav-icon-btn user-profile-link">
+                    <i class="far fa-user"></i>
+                    {% if user %}
+                    <span class="user-greeting">Hi, {{ user.full_name.split()[0] if user.full_name else 'Shopper' }}</span>
+                    {% endif %}
+                </a>
                 <button class="cart-btn" onclick="toggleCart()">
                     <i class="fas fa-shopping-cart"></i>
                     <span>My Cart</span>
@@ -40,75 +56,83 @@
     </nav>
 
     <main class="container main-content" id="main-view">
-        <div class="shop-layout">
-            <aside class="sidebar">
-                <div class="filter-group">
-                    <h3>Filters</h3>
-                    <hr>
-                    <div class="filter-section">
-                        <h4>Categories</h4>
-                        <div class="filter-options">
-                            {% for category in categories %}
-                            <label class="filter-option">
-                                <input type="checkbox" name="category" value="{{ category }}" onchange="filterProducts()">
-                                <span>{{ category }}</span>
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div class="filter-section">
-                        <h4>Dietary</h4>
-                        <div class="filter-options">
-                            <label class="filter-option">
-                                <input type="checkbox"> <span>Organic</span>
-                            </label>
-                            <label class="filter-option">
-                                <input type="checkbox"> <span>Gluten-Free</span>
-                            </label>
-                        </div>
-                    </div>
+        <section class="daily-deals-section" id="daily-deals">
+            <div class="daily-deals-header">
+                <h2><i class="fas fa-tags"></i> Daily Deals</h2>
+                <div class="delivery-animation-placeholder">
+                    <!-- Placeholder for future delivery animation component -->
+                    <span>Fast Delivery</span>
                 </div>
-            </aside>
+            </div>
+        </section>
 
-            <section class="products-section">
-                <div class="department-icons">
-                    <a href="javascript:void(0)" class="dept-icon" onclick="setCategoryFilter('Produce')">
-                        <div class="dept-icon-tile"><i class="fas fa-apple-alt"></i></div>
-                        <span>Produce</span>
-                    </a>
-                    <a href="javascript:void(0)" class="dept-icon" onclick="setCategoryFilter('Dairy')">
-                        <div class="dept-icon-tile"><i class="fas fa-cheese"></i></div>
-                        <span>Dairy</span>
-                    </a>
-                    <a href="javascript:void(0)" class="dept-icon" onclick="setCategoryFilter('Bakery')">
-                        <div class="dept-icon-tile"><i class="fas fa-bread-slice"></i></div>
-                        <span>Bakery</span>
-                    </a>
-                    <a href="javascript:void(0)" class="dept-icon" onclick="setCategoryFilter('Pantry')">
-                        <div class="dept-icon-tile"><i class="fas fa-jar"></i></div>
-                        <span>Pantry</span>
-                    </a>
+        <section class="daily-deals-section" id="our-products" style="margin-bottom: 1.5rem;">
+            <div class="daily-deals-header">
+                <h2><i class="fas fa-store"></i> Our Products</h2>
+                <div class="sort-dropdown">
+                    <span style="color: var(--primary); font-weight: 600;">Sort by:</span>
+                    <select id="price-sort" class="polished-dropdown" onchange="sortProducts()">
+                        <option value="low-high">Price (Low → High)</option>
+                        <option value="high-low">Price (High → Low)</option>
+                        <option value="favorites">Favorites</option>
+                    </select>
                 </div>
+            </div>
+        </section>
 
-                <div class="products-header">
-                    <h2 style="font-size: 1.25rem; font-weight: 600;">Our Products</h2>
-                    <div class="sort-dropdown">
-                        <span>Sort by:</span>
-                        <select id="price-sort" onchange="sortProducts()">
-                            <option value="low-high">Price (Low → High)</option>
-                            <option value="high-low">Price (High → Low)</option>
-                        </select>
+        <div class="category-filters-container">
+            <button class="filter-icon-btn active" onclick="filterByCategory('All', this)">
+                <i class="fas fa-th-large"></i>
+                <span>All Products</span>
+            </button>
+            {% for category in categories %}
+            <button class="filter-icon-btn" onclick="filterByCategory('{{ category }}', this)">
+                {% if category == 'Produce' %}<i class="fas fa-apple-alt"></i>
+                {% elif category == 'Dairy' %}<i class="fas fa-cheese"></i>
+                {% elif category == 'Bakery' %}<i class="fas fa-bread-slice"></i>
+                {% elif category == 'Pantry' %}<i class="fas fa-jar"></i>
+                {% elif category == 'Meat' %}<i class="fas fa-drumstick-bite"></i>
+                {% elif category == 'Frozen' %}<i class="fas fa-snowflake"></i>
+                {% elif category == 'Beverages' %}<i class="fas fa-coffee"></i>
+                {% elif category == 'Snacks' %}<i class="fas fa-cookie"></i>
+                {% else %}<i class="fas fa-shopping-basket"></i>{% endif %}
+                <span>{{ category }}</span>
+            </button>
+            {% endfor %}
+        </div>
+
+        <input type="hidden" id="product-search" value="">
+
+        <div class="categories-container" id="products-container">
+            {% for category in categories %}
+            <div class="category-row-wrapper" data-category-wrapper="{{ category }}">
+                <div class="category-row-header">
+                    <div class="category-icon">
+                        {% if category == 'Produce' %}<i class="fas fa-apple-alt"></i>
+                        {% elif category == 'Dairy' %}<i class="fas fa-cheese"></i>
+                        {% elif category == 'Bakery' %}<i class="fas fa-bread-slice"></i>
+                        {% elif category == 'Pantry' %}<i class="fas fa-jar"></i>
+                        {% elif category == 'Meat' %}<i class="fas fa-drumstick-bite"></i>
+                        {% elif category == 'Frozen' %}<i class="fas fa-snowflake"></i>
+                        {% elif category == 'Beverages' %}<i class="fas fa-coffee"></i>
+                        {% elif category == 'Snacks' %}<i class="fas fa-cookie"></i>
+                        {% else %}<i class="fas fa-shopping-basket"></i>{% endif %}
                     </div>
+                    <h3>{{ category }}</h3>
                 </div>
-                <input type="hidden" id="product-search" value="">
 
-                <div class="products-grid" id="products-container">
-                    {% for product in products %}
-                    <div class="product-card" data-name="{{ product.name|lower }}" data-category="{{ product.category }}" data-price="{{ product.price }}">
-                        <div class="product-image">
-                            <img src="{{ product.image_url }}" alt="{{ product.name }}">
-                        </div>
+                <div class="horizontal-scroll-wrapper">
+                    <button class="scroll-btn left" onclick="scrollContainer(this, -300)"><i class="fas fa-chevron-left"></i></button>
+                    <div class="horizontal-scroll-container">
+                        {% for product in products %}
+                        {% if product.category == category %}
+                        <div class="product-card" data-id="{{ product.id }}" data-name="{{ product.name|lower }}" data-category="{{ product.category }}" data-price="{{ product.price }}">
+                            <div class="product-image">
+                                <button class="favorite-btn" onclick="toggleFavorite('{{ product.id }}')">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                            </div>
                         <div class="product-info">
                             <h3>{{ product.name }}</h3>
                             <div class="rating">
@@ -120,14 +144,39 @@
                                 <span class="rating-count">(42)</span>
                             </div>
                             <p class="price">₹{{ "%.0f"|format(product.price) }}</p>
-                            <button class="add-to-cart-btn" onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image_url }}')">
-                                Add to Cart
-                            </button>
+                            <div class="product-actions">
+                                <div class="cart-action-container" data-id="{{ product.id }}">
+                                    <button class="add-to-cart-btn" onclick="addToCart({{ product.id }}, '{{ product.name|replace("'", "\\'") }}', {{ product.price }}, '{{ product.image_url }}')">
+                                        Add to Cart
+                                    </button>
+                                    <div class="quantity-selector" style="display: none;">
+                                        <button onclick="updateQuantity('{{ product.id }}', -1)">-</button>
+                                        <span class="qty-display">1</span>
+                                        <button onclick="updateQuantity('{{ product.id }}', 1)">+</button>
+                                    </div>
+                                </div>
+                                <div class="review-action-container">
+                                    <button class="review-btn" onclick="toggleReview('{{ product.id }}')">
+                                        <i class="far fa-comment-dots"></i>
+                                    </button>
+                                    <div class="review-tray" id="review-tray-{{ product.id }}" style="display: none;">
+                                        <i class="far fa-star" onclick="submitRating('{{ product.id }}', 1)"></i>
+                                        <i class="far fa-star" onclick="submitRating('{{ product.id }}', 2)"></i>
+                                        <i class="far fa-star" onclick="submitRating('{{ product.id }}', 3)"></i>
+                                        <i class="far fa-star" onclick="submitRating('{{ product.id }}', 4)"></i>
+                                        <i class="far fa-star" onclick="submitRating('{{ product.id }}', 5)"></i>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        {% endif %}
+                        {% endfor %}
                     </div>
-                    {% endfor %}
+                    <button class="scroll-btn right" onclick="scrollContainer(this, 300)"><i class="fas fa-chevron-right"></i></button>
                 </div>
-            </section>
+            </div>
+            {% endfor %}
         </div>
     </main>
 
@@ -170,11 +219,29 @@
 
     <script>
         let cart = JSON.parse(localStorage.getItem('cart') || '{}');
+        let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
 
         function updateCartUI() {
             const totalCount = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
             document.getElementById('cart-count').innerText = totalCount;
             renderCartItems();
+
+            const actionContainers = document.querySelectorAll('.cart-action-container');
+            actionContainers.forEach(container => {
+                const id = container.dataset.id;
+                const addBtn = container.querySelector('.add-to-cart-btn');
+                const qtySelector = container.querySelector('.quantity-selector');
+                const qtyDisplay = container.querySelector('.qty-display');
+
+                if (cart[id]) {
+                    addBtn.style.display = 'none';
+                    qtySelector.style.display = 'flex';
+                    qtyDisplay.innerText = cart[id].quantity;
+                } else {
+                    addBtn.style.display = 'block';
+                    qtySelector.style.display = 'none';
+                }
+            });
         }
 
         function addToCart(productId, name, price, image) {
@@ -264,14 +331,76 @@
         function toggleCart() {
             const mainView = document.getElementById('main-view');
             const cartView = document.getElementById('cart-view');
-            if (cartView.style.display === 'none') {
-                cartView.style.display = 'block';
-                mainView.style.display = 'none';
-                renderCartItems();
+            if (cartView.style.display === 'none' || cartView.style.display === '') {
+                openCart();
             } else {
                 cartView.style.display = 'none';
                 mainView.style.display = 'block';
             }
+        }
+
+        function openCart() {
+            const mainView = document.getElementById('main-view');
+            const cartView = document.getElementById('cart-view');
+            cartView.style.display = 'block';
+            mainView.style.display = 'none';
+            renderCartItems();
+        }
+
+        function navigateTo(section) {
+            const mainView = document.getElementById('main-view');
+            const cartView = document.getElementById('cart-view');
+            cartView.style.display = 'none';
+            mainView.style.display = 'block';
+
+            if (section === 'favorites') {
+                document.getElementById('price-sort').value = 'favorites';
+                sortProducts();
+                document.getElementById('our-products').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                const el = document.getElementById(section);
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function toggleFavorite(productId) {
+            const index = favorites.indexOf(productId);
+            if (index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(productId);
+            }
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+
+            // Update UI for this button across all matching cards
+            const cards = document.querySelectorAll(`.product-card[data-id="${productId}"]`);
+            cards.forEach(card => {
+                const btn = card.querySelector('.favorite-btn');
+                if (favorites.includes(productId)) {
+                    btn.classList.add('favorited');
+                } else {
+                    btn.classList.remove('favorited');
+                }
+            });
+
+            if (document.getElementById('price-sort').value === 'favorites') {
+                sortProducts();
+            }
+        }
+
+        function loadFavorites() {
+            favorites.forEach(id => {
+                const cards = document.querySelectorAll(`.product-card[data-id="${id}"]`);
+                cards.forEach(card => {
+                    const btn = card.querySelector('.favorite-btn');
+                    if(btn) btn.classList.add('favorited');
+                });
+            });
+        }
+
+        function scrollContainer(btn, amount) {
+            const container = btn.parentElement.querySelector('.horizontal-scroll-container');
+            container.scrollBy({ left: amount, behavior: 'smooth' });
         }
 
         function syncSearch(val) {
@@ -279,55 +408,118 @@
             filterProducts();
         }
 
-        function setCategoryFilter(category) {
-            const checkboxes = document.querySelectorAll('input[name="category"]');
-            checkboxes.forEach(cb => {
-                if(cb.value === category) {
-                    cb.checked = true;
+        function filterByCategory(category, btnElement) {
+            // Update active state on buttons
+            document.querySelectorAll('.filter-icon-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            const wrappers = document.querySelectorAll('.category-row-wrapper');
+            wrappers.forEach(wrapper => {
+                if (category === 'All' || wrapper.dataset.categoryWrapper === category) {
+                    wrapper.style.display = 'block';
                 } else {
-                    cb.checked = false;
+                    wrapper.style.display = 'none';
                 }
             });
+
+            // Also trigger search filter to ensure hidden search results don't reappear
             filterProducts();
         }
 
         function filterProducts() {
             const searchQuery = document.getElementById('product-search').value.toLowerCase();
-            const selectedCategories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
-            const showAll = selectedCategories.length === 0;
+            const categoryWrappers = document.querySelectorAll('.category-row-wrapper');
 
-            const cards = document.querySelectorAll('.product-card');
-            cards.forEach(card => {
-                const name = card.dataset.name;
-                const category = card.dataset.category;
+            // Get currently active category filter
+            const activeBtn = document.querySelector('.filter-icon-btn.active');
+            let activeCategory = 'All';
+            if (activeBtn) {
+                activeCategory = activeBtn.querySelector('span').innerText.trim();
+                // Special case: if button text is 'All Products', map to 'All'
+                if (activeCategory === 'All Products') activeCategory = 'All';
+            }
 
-                const matchesSearch = name.includes(searchQuery);
-                const matchesCategory = showAll || selectedCategories.includes(category);
+            categoryWrappers.forEach(wrapper => {
+                const wrapperCategory = wrapper.dataset.categoryWrapper;
 
-                if (matchesSearch && matchesCategory) {
-                    card.style.display = 'block';
+                // If this wrapper doesn't match the current active category filter, hide it and skip
+                if (activeCategory !== 'All' && wrapperCategory !== activeCategory) {
+                    wrapper.style.display = 'none';
+                    return;
+                }
+
+                const cards = wrapper.querySelectorAll('.product-card');
+                let hasVisibleCards = false;
+
+                cards.forEach(card => {
+                    const name = card.dataset.name;
+                    if (name.includes(searchQuery)) {
+                        card.style.display = 'flex';
+                        hasVisibleCards = true;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                if (hasVisibleCards) {
+                    wrapper.style.display = 'block';
                 } else {
-                    card.style.display = 'none';
+                    wrapper.style.display = 'none';
                 }
             });
         }
 
         function sortProducts() {
-            const container = document.getElementById('products-container');
-            const cards = Array.from(container.querySelectorAll('.product-card'));
+            const containers = document.querySelectorAll('.horizontal-scroll-container');
             const sortVal = document.getElementById('price-sort').value;
 
-            cards.sort((a, b) => {
-                const priceA = parseFloat(a.dataset.price);
-                const priceB = parseFloat(b.dataset.price);
-                return sortVal === 'low-high' ? priceA - priceB : priceB - priceA;
+            containers.forEach(container => {
+                const cards = Array.from(container.querySelectorAll('.product-card'));
+                cards.sort((a, b) => {
+                    if (sortVal === 'favorites') {
+                        const aFav = favorites.includes(a.dataset.id) ? 1 : 0;
+                        const bFav = favorites.includes(b.dataset.id) ? 1 : 0;
+                        return bFav - aFav; // Favorited items first
+                    } else {
+                        const priceA = parseFloat(a.dataset.price);
+                        const priceB = parseFloat(b.dataset.price);
+                        return sortVal === 'low-high' ? priceA - priceB : priceB - priceA;
+                    }
+                });
+                cards.forEach(card => container.appendChild(card));
             });
+        }
 
-            cards.forEach(card => container.appendChild(card));
+        function toggleDrawer() {
+            const drawer = document.getElementById('side-drawer');
+            const overlay = document.getElementById('drawer-overlay');
+            if (drawer.classList.contains('open')) {
+                drawer.classList.remove('open');
+                overlay.classList.remove('open');
+            } else {
+                drawer.classList.add('open');
+                overlay.classList.add('open');
+            }
+        }
+
+        function toggleReview(productId) {
+            const tray = document.getElementById(`review-tray-${productId}`);
+            if (tray.style.display === 'none' || tray.style.display === '') {
+                tray.style.display = 'flex';
+            } else {
+                tray.style.display = 'none';
+            }
+        }
+
+        function submitRating(productId, rating) {
+            console.log(`Submitted rating of ${rating} for product ${productId}`);
+            const tray = document.getElementById(`review-tray-${productId}`);
+            tray.style.display = 'none';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             updateCartUI();
+            loadFavorites();
         });
     </script>
 </body>
