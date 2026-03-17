@@ -136,7 +136,7 @@
                         <div class="product-info">
                             <h3>{{ product.name }}</h3>
                             <div class="rating" id="rating-container-{{ product.id }}">
-                                {% set rounded_rating = product.rating | round | int %}
+                                {% set rounded_rating = (product.rating + 0.5) | int %}
                                 {% for i in range(5) %}
                                     {% if i < rounded_rating %}
                                         <i class="fas fa-star"></i>
