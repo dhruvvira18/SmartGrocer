@@ -8,16 +8,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Side Drawer -->
+    <div id="side-drawer" class="side-drawer">
+        <button class="close-btn" onclick="toggleDrawer()"><i class="fas fa-times"></i></button>
+        <div class="drawer-content">
+            <a href="#"><i class="fas fa-tags"></i> Daily Deals</a>
+            <a href="javascript:void(0)" onclick="toggleCart(); toggleDrawer();"><i class="fas fa-shopping-cart"></i> My Cart</a>
+            <a href="/shop/{{ retailer.slug }}"><i class="far fa-user"></i> Profile</a>
+            <a href="#"><i class="fas fa-box"></i> My Orders</a>
+        </div>
+    </div>
+    <div id="drawer-overlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
+
     <nav class="navbar">
         <div class="container nav-container">
             <div class="nav-left">
-                <button class="menu-btn"><i class="fas fa-bars"></i></button>
+                <button class="menu-btn" onclick="toggleDrawer()"><i class="fas fa-bars"></i></button>
                 <div class="logo">
                     <span class="logo-text">{{ retailer.business_name }}</span>
-                </div>
-                <div class="location-badge">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <span>Mumbai 400001</span>
                 </div>
             </div>
 
@@ -40,71 +48,49 @@
     </nav>
 
     <main class="container main-content" id="main-view">
-        <div class="shop-layout">
-            <aside class="sidebar">
-                <div class="filter-group">
-                    <h3>Filters</h3>
-                    <hr>
-                    <div class="filter-section">
-                        <h4>Categories</h4>
-                        <div class="filter-options">
-                            {% for category in categories %}
-                            <label class="filter-option">
-                                <input type="checkbox" name="category" value="{{ category }}" onchange="filterProducts()">
-                                <span>{{ category }}</span>
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <div class="filter-section">
-                        <h4>Dietary</h4>
-                        <div class="filter-options">
-                            <label class="filter-option">
-                                <input type="checkbox"> <span>Organic</span>
-                            </label>
-                            <label class="filter-option">
-                                <input type="checkbox"> <span>Gluten-Free</span>
-                            </label>
-                        </div>
-                    </div>
+        <section class="daily-deals-section">
+            <div class="daily-deals-header">
+                <h2><i class="fas fa-tags"></i> Daily Deals</h2>
+                <div class="delivery-animation-placeholder">
+                    <!-- Placeholder for future delivery animation component -->
+                    <span>Fast Delivery</span>
                 </div>
-            </aside>
+            </div>
+        </section>
 
-            <section class="products-section">
-                <div class="department-icons">
-                    <a href="javascript:void(0)" class="dept-icon" onclick="setCategoryFilter('Produce')">
-                        <div class="dept-icon-tile"><i class="fas fa-apple-alt"></i></div>
-                        <span>Produce</span>
-                    </a>
-                    <a href="javascript:void(0)" class="dept-icon" onclick="setCategoryFilter('Dairy')">
-                        <div class="dept-icon-tile"><i class="fas fa-cheese"></i></div>
-                        <span>Dairy</span>
-                    </a>
-                    <a href="javascript:void(0)" class="dept-icon" onclick="setCategoryFilter('Bakery')">
-                        <div class="dept-icon-tile"><i class="fas fa-bread-slice"></i></div>
-                        <span>Bakery</span>
-                    </a>
-                    <a href="javascript:void(0)" class="dept-icon" onclick="setCategoryFilter('Pantry')">
-                        <div class="dept-icon-tile"><i class="fas fa-jar"></i></div>
-                        <span>Pantry</span>
-                    </a>
+        <div class="products-header">
+            <h2 style="font-size: 1.25rem; font-weight: 600;">Our Products</h2>
+            <div class="sort-dropdown">
+                <span>Sort by:</span>
+                <select id="price-sort" onchange="sortProducts()">
+                    <option value="low-high">Price (Low → High)</option>
+                    <option value="high-low">Price (High → Low)</option>
+                </select>
+            </div>
+        </div>
+        <input type="hidden" id="product-search" value="">
+
+        <div class="categories-container" id="products-container">
+            {% for category in categories %}
+            <div class="category-row-wrapper" data-category-wrapper="{{ category }}">
+                <div class="category-row-header">
+                    <div class="category-icon">
+                        {% if category == 'Produce' %}<i class="fas fa-apple-alt"></i>
+                        {% elif category == 'Dairy' %}<i class="fas fa-cheese"></i>
+                        {% elif category == 'Bakery' %}<i class="fas fa-bread-slice"></i>
+                        {% elif category == 'Pantry' %}<i class="fas fa-jar"></i>
+                        {% elif category == 'Meat' %}<i class="fas fa-drumstick-bite"></i>
+                        {% elif category == 'Frozen' %}<i class="fas fa-snowflake"></i>
+                        {% elif category == 'Beverages' %}<i class="fas fa-coffee"></i>
+                        {% elif category == 'Snacks' %}<i class="fas fa-cookie"></i>
+                        {% else %}<i class="fas fa-shopping-basket"></i>{% endif %}
+                    </div>
+                    <h3>{{ category }}</h3>
                 </div>
 
-                <div class="products-header">
-                    <h2 style="font-size: 1.25rem; font-weight: 600;">Our Products</h2>
-                    <div class="sort-dropdown">
-                        <span>Sort by:</span>
-                        <select id="price-sort" onchange="sortProducts()">
-                            <option value="low-high">Price (Low → High)</option>
-                            <option value="high-low">Price (High → Low)</option>
-                        </select>
-                    </div>
-                </div>
-                <input type="hidden" id="product-search" value="">
-
-                <div class="products-grid" id="products-container">
+                <div class="horizontal-scroll-container">
                     {% for product in products %}
+                    {% if product.category == category %}
                     <div class="product-card" data-name="{{ product.name|lower }}" data-category="{{ product.category }}" data-price="{{ product.price }}">
                         <div class="product-image">
                             <img src="{{ product.image_url }}" alt="{{ product.name }}">
@@ -120,14 +106,37 @@
                                 <span class="rating-count">(42)</span>
                             </div>
                             <p class="price">₹{{ "%.0f"|format(product.price) }}</p>
-                            <button class="add-to-cart-btn" onclick="addToCart({{ product.id }}, '{{ product.name }}', {{ product.price }}, '{{ product.image_url }}')">
-                                Add to Cart
-                            </button>
+                            <div class="product-actions">
+                                <div class="cart-action-container" data-id="{{ product.id }}">
+                                    <button class="add-to-cart-btn" onclick="addToCart({{ product.id }}, '{{ product.name|replace("'", "\\'") }}', {{ product.price }}, '{{ product.image_url }}')">
+                                        Add to Cart
+                                    </button>
+                                    <div class="quantity-selector" style="display: none;">
+                                        <button onclick="updateQuantity('{{ product.id }}', -1)">-</button>
+                                        <span class="qty-display">1</span>
+                                        <button onclick="updateQuantity('{{ product.id }}', 1)">+</button>
+                                    </div>
+                                </div>
+                                <div class="review-action-container">
+                                    <button class="review-btn" onclick="toggleReview('{{ product.id }}')">
+                                        <i class="far fa-comment-dots"></i>
+                                    </button>
+                                    <div class="review-tray" id="review-tray-{{ product.id }}" style="display: none;">
+                                        <i class="far fa-star" onclick="submitRating('{{ product.id }}', 1)"></i>
+                                        <i class="far fa-star" onclick="submitRating('{{ product.id }}', 2)"></i>
+                                        <i class="far fa-star" onclick="submitRating('{{ product.id }}', 3)"></i>
+                                        <i class="far fa-star" onclick="submitRating('{{ product.id }}', 4)"></i>
+                                        <i class="far fa-star" onclick="submitRating('{{ product.id }}', 5)"></i>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    {% endif %}
                     {% endfor %}
                 </div>
-            </section>
+            </div>
+            {% endfor %}
         </div>
     </main>
 
@@ -175,6 +184,23 @@
             const totalCount = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
             document.getElementById('cart-count').innerText = totalCount;
             renderCartItems();
+
+            const actionContainers = document.querySelectorAll('.cart-action-container');
+            actionContainers.forEach(container => {
+                const id = container.dataset.id;
+                const addBtn = container.querySelector('.add-to-cart-btn');
+                const qtySelector = container.querySelector('.quantity-selector');
+                const qtyDisplay = container.querySelector('.qty-display');
+
+                if (cart[id]) {
+                    addBtn.style.display = 'none';
+                    qtySelector.style.display = 'flex';
+                    qtyDisplay.innerText = cart[id].quantity;
+                } else {
+                    addBtn.style.display = 'block';
+                    qtySelector.style.display = 'none';
+                }
+            });
         }
 
         function addToCart(productId, name, price, image) {
@@ -293,37 +319,71 @@
 
         function filterProducts() {
             const searchQuery = document.getElementById('product-search').value.toLowerCase();
-            const selectedCategories = Array.from(document.querySelectorAll('input[name="category"]:checked')).map(cb => cb.value);
-            const showAll = selectedCategories.length === 0;
 
-            const cards = document.querySelectorAll('.product-card');
-            cards.forEach(card => {
-                const name = card.dataset.name;
-                const category = card.dataset.category;
+            const categoryWrappers = document.querySelectorAll('.category-row-wrapper');
 
-                const matchesSearch = name.includes(searchQuery);
-                const matchesCategory = showAll || selectedCategories.includes(category);
+            categoryWrappers.forEach(wrapper => {
+                const cards = wrapper.querySelectorAll('.product-card');
+                let hasVisibleCards = false;
 
-                if (matchesSearch && matchesCategory) {
-                    card.style.display = 'block';
+                cards.forEach(card => {
+                    const name = card.dataset.name;
+                    if (name.includes(searchQuery)) {
+                        card.style.display = 'flex';
+                        hasVisibleCards = true;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                if (hasVisibleCards) {
+                    wrapper.style.display = 'block';
                 } else {
-                    card.style.display = 'none';
+                    wrapper.style.display = 'none';
                 }
             });
         }
 
         function sortProducts() {
-            const container = document.getElementById('products-container');
-            const cards = Array.from(container.querySelectorAll('.product-card'));
+            const containers = document.querySelectorAll('.horizontal-scroll-container');
             const sortVal = document.getElementById('price-sort').value;
 
-            cards.sort((a, b) => {
-                const priceA = parseFloat(a.dataset.price);
-                const priceB = parseFloat(b.dataset.price);
-                return sortVal === 'low-high' ? priceA - priceB : priceB - priceA;
+            containers.forEach(container => {
+                const cards = Array.from(container.querySelectorAll('.product-card'));
+                cards.sort((a, b) => {
+                    const priceA = parseFloat(a.dataset.price);
+                    const priceB = parseFloat(b.dataset.price);
+                    return sortVal === 'low-high' ? priceA - priceB : priceB - priceA;
+                });
+                cards.forEach(card => container.appendChild(card));
             });
+        }
 
-            cards.forEach(card => container.appendChild(card));
+        function toggleDrawer() {
+            const drawer = document.getElementById('side-drawer');
+            const overlay = document.getElementById('drawer-overlay');
+            if (drawer.classList.contains('open')) {
+                drawer.classList.remove('open');
+                overlay.classList.remove('open');
+            } else {
+                drawer.classList.add('open');
+                overlay.classList.add('open');
+            }
+        }
+
+        function toggleReview(productId) {
+            const tray = document.getElementById(`review-tray-${productId}`);
+            if (tray.style.display === 'none' || tray.style.display === '') {
+                tray.style.display = 'flex';
+            } else {
+                tray.style.display = 'none';
+            }
+        }
+
+        function submitRating(productId, rating) {
+            console.log(`Submitted rating of ${rating} for product ${productId}`);
+            const tray = document.getElementById(`review-tray-${productId}`);
+            tray.style.display = 'none';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
