@@ -386,25 +386,129 @@ body {
     align-items: center;
     margin-bottom: 2rem;
     background: #fff;
-    padding: 1rem 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.products-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text);
 }
 
 .sort-dropdown {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    font-size: 0.9rem;
-    color: #666;
+    font-size: 0.95rem;
+    color: #4b5563;
+    font-weight: 500;
 }
 
-.sort-dropdown select {
-    padding: 0.5rem;
-    border: 1px solid #eee;
-    border-radius: 8px;
+.polished-dropdown {
+    padding: 0.6rem 2rem 0.6rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
     outline: none;
+    appearance: none;
+    background: #fff url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23111827%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E") no-repeat right 0.7rem top 50%;
+    background-size: 0.65rem auto;
+    font-family: inherit;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
+
+.polished-dropdown:focus {
+    border-color: var(--secondary);
+    box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.2);
+}
+
+.category-filters-container {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    scrollbar-width: none;
+}
+.category-filters-container::-webkit-scrollbar {
+    display: none;
+}
+
+.filter-icon-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    background: #fff;
+    border: 1px solid #f3f4f6;
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    cursor: pointer;
+    min-width: 100px;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.filter-icon-btn i {
+    font-size: 1.5rem;
+    color: #6b7280;
+    transition: color 0.2s;
+}
+.filter-icon-btn span {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: #4b5563;
+}
+.filter-icon-btn:hover {
+    border-color: #d1d5db;
+    transform: translateY(-2px);
+}
+.filter-icon-btn.active {
+    background: var(--section-bg);
+    border-color: var(--primary);
+}
+.filter-icon-btn.active i {
+    color: var(--primary);
+}
+.filter-icon-btn.active span {
+    color: var(--primary);
+    font-weight: 600;
+}
+
+.horizontal-scroll-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid #eee;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    color: #333;
+    transition: all 0.2s;
+}
+.scroll-btn:hover {
+    background: #f9fafb;
+    color: var(--primary);
+}
+.scroll-btn.left { left: -15px; }
+.scroll-btn.right { right: -15px; }
+
 
 .categories-container {
     display: flex;
@@ -473,12 +577,39 @@ body {
 }
 
 .product-image {
+    position: relative;
     background: #f9fafb;
     height: 180px;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
+}
+
+.favorite-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #fff;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    color: #d1d5db;
+    font-size: 1.1rem;
+    transition: all 0.2s;
+    z-index: 5;
+}
+.favorite-btn:hover {
+    transform: scale(1.1);
+}
+.favorite-btn.favorited {
+    color: #ef4444; /* Red color for favorited */
 }
 
 .product-image img {

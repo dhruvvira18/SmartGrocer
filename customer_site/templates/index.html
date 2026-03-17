@@ -12,8 +12,10 @@
     <div id="side-drawer" class="side-drawer">
         <button class="close-btn" onclick="toggleDrawer()"><i class="fas fa-times"></i></button>
         <div class="drawer-content">
-            <a href="#"><i class="fas fa-tags"></i> Daily Deals</a>
-            <a href="javascript:void(0)" onclick="toggleCart(); toggleDrawer();"><i class="fas fa-shopping-cart"></i> My Cart</a>
+            <a href="javascript:void(0)" onclick="navigateTo('daily-deals'); toggleDrawer();"><i class="fas fa-tags"></i> Daily Deals</a>
+            <a href="javascript:void(0)" onclick="navigateTo('our-products'); toggleDrawer();"><i class="fas fa-store"></i> Our Products</a>
+            <a href="javascript:void(0)" onclick="navigateTo('favorites'); toggleDrawer();"><i class="fas fa-heart"></i> Favorites</a>
+            <a href="javascript:void(0)" onclick="openCart(); toggleDrawer();"><i class="fas fa-shopping-cart"></i> My Cart</a>
             <a href="/shop/{{ retailer.slug }}"><i class="far fa-user"></i> Profile</a>
             <a href="#"><i class="fas fa-box"></i> My Orders</a>
         </div>
@@ -48,7 +50,7 @@
     </nav>
 
     <main class="container main-content" id="main-view">
-        <section class="daily-deals-section">
+        <section class="daily-deals-section" id="daily-deals">
             <div class="daily-deals-header">
                 <h2><i class="fas fa-tags"></i> Daily Deals</h2>
                 <div class="delivery-animation-placeholder">
@@ -58,16 +60,41 @@
             </div>
         </section>
 
-        <div class="products-header">
-            <h2 style="font-size: 1.25rem; font-weight: 600;">Our Products</h2>
-            <div class="sort-dropdown">
-                <span>Sort by:</span>
-                <select id="price-sort" onchange="sortProducts()">
-                    <option value="low-high">Price (Low → High)</option>
-                    <option value="high-low">Price (High → Low)</option>
-                </select>
+        <section class="daily-deals-section" id="our-products" style="margin-bottom: 1.5rem;">
+            <div class="products-header" style="margin-bottom: 0; padding: 0; box-shadow: none;">
+                <h2>Our Products</h2>
+                <div class="sort-dropdown">
+                    <span>Sort by:</span>
+                    <select id="price-sort" class="polished-dropdown" onchange="sortProducts()">
+                        <option value="low-high">Price (Low → High)</option>
+                        <option value="high-low">Price (High → Low)</option>
+                        <option value="favorites">Favorites</option>
+                    </select>
+                </div>
             </div>
+        </section>
+
+        <div class="category-filters-container">
+            <button class="filter-icon-btn active" onclick="filterByCategory('All', this)">
+                <i class="fas fa-th-large"></i>
+                <span>All Products</span>
+            </button>
+            {% for category in categories %}
+            <button class="filter-icon-btn" onclick="filterByCategory('{{ category }}', this)">
+                {% if category == 'Produce' %}<i class="fas fa-apple-alt"></i>
+                {% elif category == 'Dairy' %}<i class="fas fa-cheese"></i>
+                {% elif category == 'Bakery' %}<i class="fas fa-bread-slice"></i>
+                {% elif category == 'Pantry' %}<i class="fas fa-jar"></i>
+                {% elif category == 'Meat' %}<i class="fas fa-drumstick-bite"></i>
+                {% elif category == 'Frozen' %}<i class="fas fa-snowflake"></i>
+                {% elif category == 'Beverages' %}<i class="fas fa-coffee"></i>
+                {% elif category == 'Snacks' %}<i class="fas fa-cookie"></i>
+                {% else %}<i class="fas fa-shopping-basket"></i>{% endif %}
+                <span>{{ category }}</span>
+            </button>
+            {% endfor %}
         </div>
+
         <input type="hidden" id="product-search" value="">
 
         <div class="categories-container" id="products-container">
@@ -88,13 +115,18 @@
                     <h3>{{ category }}</h3>
                 </div>
 
-                <div class="horizontal-scroll-container">
-                    {% for product in products %}
-                    {% if product.category == category %}
-                    <div class="product-card" data-name="{{ product.name|lower }}" data-category="{{ product.category }}" data-price="{{ product.price }}">
-                        <div class="product-image">
-                            <img src="{{ product.image_url }}" alt="{{ product.name }}">
-                        </div>
+                <div class="horizontal-scroll-wrapper">
+                    <button class="scroll-btn left" onclick="scrollContainer(this, -300)"><i class="fas fa-chevron-left"></i></button>
+                    <div class="horizontal-scroll-container">
+                        {% for product in products %}
+                        {% if product.category == category %}
+                        <div class="product-card" data-id="{{ product.id }}" data-name="{{ product.name|lower }}" data-category="{{ product.category }}" data-price="{{ product.price }}">
+                            <div class="product-image">
+                                <button class="favorite-btn" onclick="toggleFavorite('{{ product.id }}')">
+                                    <i class="fas fa-heart"></i>
+                                </button>
+                                <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                            </div>
                         <div class="product-info">
                             <h3>{{ product.name }}</h3>
                             <div class="rating">
@@ -128,12 +160,14 @@
                                         <i class="far fa-star" onclick="submitRating('{{ product.id }}', 4)"></i>
                                         <i class="far fa-star" onclick="submitRating('{{ product.id }}', 5)"></i>
                                     </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        {% endif %}
+                        {% endfor %}
                     </div>
-                    {% endif %}
-                    {% endfor %}
+                    <button class="scroll-btn right" onclick="scrollContainer(this, 300)"><i class="fas fa-chevron-right"></i></button>
                 </div>
             </div>
             {% endfor %}
@@ -179,6 +213,7 @@
 
     <script>
         let cart = JSON.parse(localStorage.getItem('cart') || '{}');
+        let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
 
         function updateCartUI() {
             const totalCount = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
@@ -290,14 +325,76 @@
         function toggleCart() {
             const mainView = document.getElementById('main-view');
             const cartView = document.getElementById('cart-view');
-            if (cartView.style.display === 'none') {
-                cartView.style.display = 'block';
-                mainView.style.display = 'none';
-                renderCartItems();
+            if (cartView.style.display === 'none' || cartView.style.display === '') {
+                openCart();
             } else {
                 cartView.style.display = 'none';
                 mainView.style.display = 'block';
             }
+        }
+
+        function openCart() {
+            const mainView = document.getElementById('main-view');
+            const cartView = document.getElementById('cart-view');
+            cartView.style.display = 'block';
+            mainView.style.display = 'none';
+            renderCartItems();
+        }
+
+        function navigateTo(section) {
+            const mainView = document.getElementById('main-view');
+            const cartView = document.getElementById('cart-view');
+            cartView.style.display = 'none';
+            mainView.style.display = 'block';
+
+            if (section === 'favorites') {
+                document.getElementById('price-sort').value = 'favorites';
+                sortProducts();
+                document.getElementById('our-products').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                const el = document.getElementById(section);
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function toggleFavorite(productId) {
+            const index = favorites.indexOf(productId);
+            if (index > -1) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(productId);
+            }
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+
+            // Update UI for this button across all matching cards
+            const cards = document.querySelectorAll(`.product-card[data-id="${productId}"]`);
+            cards.forEach(card => {
+                const btn = card.querySelector('.favorite-btn');
+                if (favorites.includes(productId)) {
+                    btn.classList.add('favorited');
+                } else {
+                    btn.classList.remove('favorited');
+                }
+            });
+
+            if (document.getElementById('price-sort').value === 'favorites') {
+                sortProducts();
+            }
+        }
+
+        function loadFavorites() {
+            favorites.forEach(id => {
+                const cards = document.querySelectorAll(`.product-card[data-id="${id}"]`);
+                cards.forEach(card => {
+                    const btn = card.querySelector('.favorite-btn');
+                    if(btn) btn.classList.add('favorited');
+                });
+            });
+        }
+
+        function scrollContainer(btn, amount) {
+            const container = btn.parentElement.querySelector('.horizontal-scroll-container');
+            container.scrollBy({ left: amount, behavior: 'smooth' });
         }
 
         function syncSearch(val) {
@@ -305,24 +402,46 @@
             filterProducts();
         }
 
-        function setCategoryFilter(category) {
-            const checkboxes = document.querySelectorAll('input[name="category"]');
-            checkboxes.forEach(cb => {
-                if(cb.value === category) {
-                    cb.checked = true;
+        function filterByCategory(category, btnElement) {
+            // Update active state on buttons
+            document.querySelectorAll('.filter-icon-btn').forEach(btn => btn.classList.remove('active'));
+            btnElement.classList.add('active');
+
+            const wrappers = document.querySelectorAll('.category-row-wrapper');
+            wrappers.forEach(wrapper => {
+                if (category === 'All' || wrapper.dataset.categoryWrapper === category) {
+                    wrapper.style.display = 'block';
                 } else {
-                    cb.checked = false;
+                    wrapper.style.display = 'none';
                 }
             });
+
+            // Also trigger search filter to ensure hidden search results don't reappear
             filterProducts();
         }
 
         function filterProducts() {
             const searchQuery = document.getElementById('product-search').value.toLowerCase();
-
             const categoryWrappers = document.querySelectorAll('.category-row-wrapper');
 
+            // Get currently active category filter
+            const activeBtn = document.querySelector('.filter-icon-btn.active');
+            let activeCategory = 'All';
+            if (activeBtn) {
+                activeCategory = activeBtn.querySelector('span').innerText.trim();
+                // Special case: if button text is 'All Products', map to 'All'
+                if (activeCategory === 'All Products') activeCategory = 'All';
+            }
+
             categoryWrappers.forEach(wrapper => {
+                const wrapperCategory = wrapper.dataset.categoryWrapper;
+
+                // If this wrapper doesn't match the current active category filter, hide it and skip
+                if (activeCategory !== 'All' && wrapperCategory !== activeCategory) {
+                    wrapper.style.display = 'none';
+                    return;
+                }
+
                 const cards = wrapper.querySelectorAll('.product-card');
                 let hasVisibleCards = false;
 
@@ -351,9 +470,15 @@
             containers.forEach(container => {
                 const cards = Array.from(container.querySelectorAll('.product-card'));
                 cards.sort((a, b) => {
-                    const priceA = parseFloat(a.dataset.price);
-                    const priceB = parseFloat(b.dataset.price);
-                    return sortVal === 'low-high' ? priceA - priceB : priceB - priceA;
+                    if (sortVal === 'favorites') {
+                        const aFav = favorites.includes(a.dataset.id) ? 1 : 0;
+                        const bFav = favorites.includes(b.dataset.id) ? 1 : 0;
+                        return bFav - aFav; // Favorited items first
+                    } else {
+                        const priceA = parseFloat(a.dataset.price);
+                        const priceB = parseFloat(b.dataset.price);
+                        return sortVal === 'low-high' ? priceA - priceB : priceB - priceA;
+                    }
                 });
                 cards.forEach(card => container.appendChild(card));
             });
@@ -388,6 +513,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             updateCartUI();
+            loadFavorites();
         });
     </script>
 </body>
