@@ -135,13 +135,16 @@
                             </div>
                         <div class="product-info">
                             <h3>{{ product.name }}</h3>
-                            <div class="rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="far fa-star"></i>
-                                <span class="rating-count">(42)</span>
+                            <div class="rating" id="rating-container-{{ product.id }}">
+                                {% set rounded_rating = product.rating | round | int %}
+                                {% for i in range(5) %}
+                                    {% if i < rounded_rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="rating-count">({{ product.review_count }})</span>
                             </div>
                             <p class="price">₹{{ "%.0f"|format(product.price) }}</p>
                             <div class="product-actions">
@@ -511,10 +514,48 @@
             }
         }
 
-        function submitRating(productId, rating) {
+        async function submitRating(productId, rating) {
             console.log(`Submitted rating of ${rating} for product ${productId}`);
             const tray = document.getElementById(`review-tray-${productId}`);
             tray.style.display = 'none';
+
+            try {
+                const response = await fetch(`/shop/{{ retailer.slug }}/product/${productId}/rate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ rating: rating })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    updateRatingUI(productId, data.rating, data.review_count);
+                } else {
+                    console.error('Failed to submit rating');
+                }
+            } catch (error) {
+                console.error('Error submitting rating:', error);
+            }
+        }
+
+        function updateRatingUI(productId, newRating, newReviewCount) {
+            const container = document.getElementById(`rating-container-${productId}`);
+            if (!container) return;
+
+            let html = '';
+            const roundedRating = Math.round(newRating);
+
+            for (let i = 0; i < 5; i++) {
+                if (i < roundedRating) {
+                    html += '<i class="fas fa-star"></i>\n';
+                } else {
+                    html += '<i class="far fa-star"></i>\n';
+                }
+            }
+            html += `<span class="rating-count">(${newReviewCount})</span>`;
+
+            container.innerHTML = html;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
