@@ -37,6 +37,15 @@ async def shop_index(slug: str, request: Request, db: DbSession):
     if not retailer:
         raise HTTPException(status_code=404, detail="Store not found")
     
+    # Check session
+    shopper_id = request.cookies.get("shopper_id")
+    user = None
+    if shopper_id:
+        try:
+            user = db.query(models.User).filter(models.User.id == int(shopper_id)).first()
+        except ValueError:
+            pass
+
     # Fetch only THIS retailer's products
     products = db.query(models.Product).filter(models.Product.retailer_id == retailer.id).all()
 
@@ -50,8 +59,83 @@ async def shop_index(slug: str, request: Request, db: DbSession):
         "request": request, 
         "retailer": retailer,
         "products": products,
-        "categories": categories
+        "categories": categories,
+        "user": user
     })
+
+@app.get("/shop/{slug}/profile", response_class=HTMLResponse)
+async def shop_profile(slug: str, request: Request, db: DbSession):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
+    if not retailer:
+        raise HTTPException(status_code=404, detail="Store not found")
+
+    shopper_id = request.cookies.get("shopper_id")
+    if not shopper_id:
+        return RedirectResponse(url=f"/shop/{slug}", status_code=303)
+
+    try:
+        user = db.query(models.User).filter(models.User.id == int(shopper_id)).first()
+    except ValueError:
+        return RedirectResponse(url=f"/shop/{slug}", status_code=303)
+
+    if not user:
+        return RedirectResponse(url=f"/shop/{slug}", status_code=303)
+
+    msg = request.query_params.get("msg")
+    err = request.query_params.get("err")
+
+    return templates.TemplateResponse("profile.html", {
+        "request": request,
+        "retailer": retailer,
+        "user": user,
+        "success": msg,
+        "error": err
+    })
+
+@app.post("/shop/{slug}/profile")
+async def update_profile(
+    slug: str,
+    request: Request,
+    db: DbSession,
+    full_name: Annotated[str, Form()],
+    email: Annotated[EmailStr, Form()]
+):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
+    if not retailer:
+        raise HTTPException(status_code=404, detail="Store not found")
+
+    shopper_id = request.cookies.get("shopper_id")
+    if not shopper_id:
+        return RedirectResponse(url=f"/shop/{slug}", status_code=303)
+
+    try:
+        user = db.query(models.User).filter(models.User.id == int(shopper_id)).first()
+    except ValueError:
+        return RedirectResponse(url=f"/shop/{slug}", status_code=303)
+
+    if not user:
+        return RedirectResponse(url=f"/shop/{slug}", status_code=303)
+
+    # Check if new email is already taken by someone else
+    if email != user.email:
+        existing_user = db.query(models.User).filter(
+            models.User.email == email,
+            models.User.retailer_id == retailer.id
+        ).first()
+        if existing_user:
+            return RedirectResponse(url=f"/shop/{slug}/profile?err=Email+is+already+in+use+by+another+account.", status_code=303)
+
+    user.full_name = full_name
+    user.email = email
+    db.commit()
+
+    return RedirectResponse(url=f"/shop/{slug}/profile?msg=Profile+updated+successfully.", status_code=303)
+
+@app.get("/shop/{slug}/logout")
+async def logout(slug: str):
+    response = RedirectResponse(url=f"/shop/{slug}", status_code=303)
+    response.delete_cookie("shopper_id")
+    return response
 
 @app.get("/shop/{slug}/check-user")
 async def check_user(slug: str, email: str, db: DbSession):
@@ -81,7 +165,9 @@ async def login_or_signup(
 
     if user:
         if user.password == password:
-            return RedirectResponse(url=f"/shop/{slug}/index", status_code=303)
+            response = RedirectResponse(url=f"/shop/{slug}/index", status_code=303)
+            response.set_cookie(key="shopper_id", value=str(user.id), httponly=True)
+            return response
         
         # ERROR: Incorrect Password
         return templates.TemplateResponse("login.html", {
@@ -112,4 +198,6 @@ async def login_or_signup(
         )
         db.add(new_user)
         db.commit()
-        return RedirectResponse(url=f"/shop/{slug}/index", status_code=303)
+        response = RedirectResponse(url=f"/shop/{slug}/index", status_code=303)
+        response.set_cookie(key="shopper_id", value=str(new_user.id), httponly=True)
+        return response

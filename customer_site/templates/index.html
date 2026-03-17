@@ -16,8 +16,9 @@
             <a href="javascript:void(0)" onclick="navigateTo('our-products'); toggleDrawer();"><i class="fas fa-store"></i> Our Products</a>
             <a href="javascript:void(0)" onclick="navigateTo('favorites'); toggleDrawer();"><i class="fas fa-heart"></i> Favorites</a>
             <a href="javascript:void(0)" onclick="openCart(); toggleDrawer();"><i class="fas fa-shopping-cart"></i> My Cart</a>
-            <a href="/shop/{{ retailer.slug }}"><i class="far fa-user"></i> Profile</a>
+            <a href="/shop/{{ retailer.slug }}/profile"><i class="far fa-user"></i> Profile</a>
             <a href="#"><i class="fas fa-box"></i> My Orders</a>
+            <a href="/shop/{{ retailer.slug }}/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
     </div>
     <div id="drawer-overlay" class="drawer-overlay" onclick="toggleDrawer()"></div>
@@ -39,7 +40,12 @@
             </div>
 
             <div class="nav-right">
-                <a href="/shop/{{ retailer.slug }}" class="nav-icon-btn"><i class="far fa-user"></i></a>
+                <a href="/shop/{{ retailer.slug }}/profile" class="nav-icon-btn user-profile-link">
+                    <i class="far fa-user"></i>
+                    {% if user %}
+                    <span class="user-greeting">Hi, {{ user.full_name.split()[0] if user.full_name else 'Shopper' }}</span>
+                    {% endif %}
+                </a>
                 <button class="cart-btn" onclick="toggleCart()">
                     <i class="fas fa-shopping-cart"></i>
                     <span>My Cart</span>

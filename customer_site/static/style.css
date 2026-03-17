@@ -310,6 +310,19 @@ body {
     color: #333;
     text-decoration: none;
 }
+.user-profile-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--primary);
+}
+.user-profile-link:hover {
+    color: var(--secondary);
+}
+.user-greeting {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
 
 .cart-btn {
     background: #f0fdf4;
