@@ -23,3 +23,10 @@ class UserLogin(BaseModel):
 
 class RatingUpdate(BaseModel):
     rating: int = Field(..., ge=1, le=5)
+
+class ProductCreate(BaseModel):
+    name: str = Field(..., min_length=1)
+    price: int = Field(..., ge=0)
+    category: str = Field(..., min_length=1)
+    stock: int = Field(..., ge=0)
+    image_url: str = ""
