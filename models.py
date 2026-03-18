@@ -36,7 +36,7 @@ class Product(Base):
     price: Mapped[float] = mapped_column()
     description: Mapped[str] = mapped_column(String(255), default="")
     image_url: Mapped[str] = mapped_column(String(255), default="")
-    rating: Mapped[float] = mapped_column(default=4.5)
+    rating: Mapped[float] = mapped_column(default=0.0)
     review_count: Mapped[int] = mapped_column(default=0)
     stock: Mapped[int] = mapped_column(default=0)
     category: Mapped[str] = mapped_column(String(50), default="General")

@@ -20,3 +20,6 @@ class UserLogin(BaseModel):
         if not any(char.isdigit() for char in v):
             raise ValueError("Password needs at least one number")
         return v
+
+class RatingUpdate(BaseModel):
+    rating: int = Field(..., ge=1, le=5)

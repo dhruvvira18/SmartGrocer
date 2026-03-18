@@ -15,7 +15,7 @@ from pydantic import ValidationError, EmailStr
 
 import models
 from database import engine, get_db
-from schemas import UserLogin
+from schemas import UserLogin, RatingUpdate
 
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
@@ -201,3 +201,32 @@ async def login_or_signup(
         response = RedirectResponse(url=f"/shop/{slug}/index", status_code=303)
         response.set_cookie(key="shopper_id", value=str(new_user.id), httponly=True)
         return response
+
+@app.post("/shop/{slug}/product/{product_id}/rate")
+async def rate_product(
+    slug: str,
+    product_id: int,
+    rating_data: RatingUpdate,
+    db: DbSession
+):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
+    if not retailer:
+        raise HTTPException(status_code=404, detail="Store not found")
+
+    product = db.query(models.Product).filter(
+        models.Product.id == product_id,
+        models.Product.retailer_id == retailer.id
+    ).first()
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    # Calculate new average rating
+    total_rating_sum = (product.rating * product.review_count) + rating_data.rating
+    product.review_count += 1
+    product.rating = total_rating_sum / product.review_count
+
+    db.commit()
+    db.refresh(product)
+
+    return {"rating": product.rating, "review_count": product.review_count}
