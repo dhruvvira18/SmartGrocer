@@ -28,6 +28,7 @@
                     <th style="padding: 15px;">Category</th>
                     <th style="padding: 15px;">Price</th>
                     <th style="padding: 15px;">Current Stock</th>
+                    <th style="padding: 15px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -47,6 +48,12 @@
                     <td style="padding: 15px;">₹{{ product.price }}</td>
                     <td style="padding: 15px;">
                         <span style="{% if product.stock < 10 %}color: red; font-weight: bold;{% endif %}">{{ product.stock }}</span>
+                    </td>
+                    <td style="padding: 15px;">
+                        <form action="/admin/{{ retailer.slug }}/inventory/{{ product.id }}/add-stock" method="post" style="display: flex; gap: 5px;">
+                            <input type="number" name="amount" min="1" value="10" required style="width: 60px; padding: 5px; border: 1px solid #ced4da; border-radius: 4px;">
+                            <button type="submit" class="btn-primary" style="padding: 5px 10px; font-size: 14px;">+ Add Stock</button>
+                        </form>
                     </td>
                 </tr>
                 {% else %}

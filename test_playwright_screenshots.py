@@ -14,17 +14,28 @@ async def run():
 
         # Dashboard
         await page.wait_for_selector('h1:has-text("Inventory Control Center")')
-        await page.screenshot(path="dashboard_screenshot.png")
+        await page.screenshot(path="dashboard_screenshot_2.png")
 
         # 2. Go to Inventory
         await page.goto("http://localhost:8001/admin/mikes-groceries/inventory")
         await page.wait_for_selector('h1:has-text("Inventory Management")')
-        await page.screenshot(path="inventory_screenshot.png")
 
-        # 3. Add Product Modal
-        await page.click('button:has-text("+ Add Product")')
-        await page.wait_for_selector('#add-product-modal', state='visible')
-        await page.screenshot(path="add_product_modal_screenshot.png")
+        # Get the stock before
+        stock_element = await page.wait_for_selector('tr:has-text("Fresh Apple") >> span')
+        stock_text_before = await stock_element.inner_text()
+        print(f"Stock before: {stock_text_before}")
+
+        # Add stock
+        await page.fill('tr:has-text("Fresh Apple") >> input[name="amount"]', '5')
+        await page.click('tr:has-text("Fresh Apple") >> button:has-text("+ Add Stock")')
+
+        # Wait for the page to reload
+        await page.wait_for_selector('h1:has-text("Inventory Management")')
+        stock_element = await page.wait_for_selector('tr:has-text("Fresh Apple") >> span')
+        stock_text_after = await stock_element.inner_text()
+        print(f"Stock after: {stock_text_after}")
+
+        await page.screenshot(path="inventory_screenshot_2.png")
 
         await browser.close()
 

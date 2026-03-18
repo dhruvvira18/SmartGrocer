@@ -89,6 +89,33 @@ async def add_product(
             "error": e.errors()[0]["msg"]
         })
 
+@app.post("/admin/{slug}/inventory/{product_id}/add-stock", response_class=HTMLResponse)
+async def add_stock(
+    slug: str,
+    product_id: int,
+    request: Request,
+    db: DbSession,
+    amount: Annotated[int, Form()]
+):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
+    if not retailer:
+        raise HTTPException(status_code=404, detail="Retailer not found")
+
+    product = db.query(models.Product).filter(
+        models.Product.id == product_id,
+        models.Product.retailer_id == retailer.id
+    ).first()
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    if amount > 0:
+        product.stock += amount
+        db.commit()
+
+    return RedirectResponse(url=f"/admin/{slug}/inventory", status_code=303)
+
+
 @app.get("/admin/{slug}/dashboard", response_class=HTMLResponse)
 async def dashboard(slug: str, request: Request, db: DbSession):
     retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
