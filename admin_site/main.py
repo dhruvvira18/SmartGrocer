@@ -116,12 +116,79 @@ async def add_stock(
     return RedirectResponse(url=f"/admin/{slug}/inventory", status_code=303)
 
 
+@app.post("/admin/{slug}/inventory/{product_id}/edit", response_class=HTMLResponse)
+async def edit_product(
+    slug: str,
+    product_id: int,
+    request: Request,
+    db: DbSession,
+    name: Annotated[str, Form()],
+    price: Annotated[int, Form()],
+    category: Annotated[str, Form()],
+    stock: Annotated[int, Form()],
+    image_url: Annotated[str, Form()] = ""
+):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
+    if not retailer:
+        raise HTTPException(status_code=404, detail="Retailer not found")
+
+    product = db.query(models.Product).filter(
+        models.Product.id == product_id,
+        models.Product.retailer_id == retailer.id
+    ).first()
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    try:
+        product_data = ProductCreate(
+            name=name,
+            price=price,
+            category=category,
+            stock=stock,
+            image_url=image_url
+        )
+
+        product.name = product_data.name
+        product.price = product_data.price
+        product.category = product_data.category
+        product.stock = product_data.stock
+        product.image_url = product_data.image_url
+
+        db.commit()
+        return RedirectResponse(url=f"/admin/{slug}/inventory", status_code=303)
+
+    except ValidationError as e:
+        products = db.query(models.Product).filter(models.Product.retailer_id == retailer.id).all()
+        return templates.TemplateResponse("inventory.html", {
+            "request": request,
+            "retailer": retailer,
+            "products": products,
+            "error": f"Failed to update product: {e.errors()[0]['msg']}"
+        })
+
 @app.get("/admin/{slug}/dashboard", response_class=HTMLResponse)
 async def dashboard(slug: str, request: Request, db: DbSession):
     retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
     if not retailer:
         raise HTTPException(status_code=404, detail="Retailer not found")
-    return templates.TemplateResponse("dashboard.html", {"request": request, "retailer": retailer})
+
+    low_stock_count = db.query(models.Product).filter(
+        models.Product.retailer_id == retailer.id,
+        models.Product.stock < 10
+    ).count()
+
+    customer_count = db.query(models.User).filter(
+        models.User.retailer_id == retailer.id,
+        models.User.role == "shopper"
+    ).count()
+
+    return templates.TemplateResponse("dashboard.html", {
+        "request": request,
+        "retailer": retailer,
+        "low_stock_count": low_stock_count,
+        "customer_count": customer_count
+    })
 
 @app.post("/login")
 async def admin_login(

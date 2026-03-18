@@ -50,15 +50,18 @@
                         <span style="{% if product.stock < 10 %}color: red; font-weight: bold;{% endif %}">{{ product.stock }}</span>
                     </td>
                     <td style="padding: 15px;">
-                        <form action="/admin/{{ retailer.slug }}/inventory/{{ product.id }}/add-stock" method="post" style="display: flex; gap: 5px;">
-                            <input type="number" name="amount" min="1" value="10" required style="width: 60px; padding: 5px; border: 1px solid #ced4da; border-radius: 4px;">
-                            <button type="submit" class="btn-primary" style="padding: 5px 10px; font-size: 14px;">+ Add Stock</button>
-                        </form>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <button class="edit-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}" data-category="{{ product.category }}" data-stock="{{ product.stock }}" data-image="{{ product.image_url }}" style="background: none; border: none; cursor: pointer; color: var(--primary); font-size: 16px;"><i class="fas fa-edit"></i> Edit</button>
+                            <form action="/admin/{{ retailer.slug }}/inventory/{{ product.id }}/add-stock" method="post" style="display: flex; gap: 5px; margin: 0;">
+                                <input type="number" name="amount" min="1" value="10" required style="width: 60px; padding: 5px; border: 1px solid #ced4da; border-radius: 4px;">
+                                <button type="submit" class="btn-primary" style="padding: 5px 10px; font-size: 14px;">+ Add Stock</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="5" style="padding: 20px; text-align: center; color: #6c757d;">No products found. Start by adding one!</td>
+                    <td colspan="6" style="padding: 20px; text-align: center; color: #6c757d;">No products found. Start by adding one!</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -107,4 +110,71 @@
             </form>
         </div>
     </div>
+
+    <!-- Edit Product Modal -->
+    <div id="edit-product-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="background: white; width: 500px; margin: 100px auto; padding: 30px; border-radius: 15px; position: relative;">
+            <button onclick="document.getElementById('edit-product-modal').style.display='none'" style="position: absolute; right: 20px; top: 20px; border: none; background: none; font-size: 20px; cursor: pointer;">&times;</button>
+            <h2 style="margin-top: 0; margin-bottom: 20px; color: var(--primary);">Edit Product</h2>
+            <form id="edit-form" method="post" style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Product Name *</label>
+                    <input type="text" name="name" id="edit-name" required style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;">
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <div style="flex: 1;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Price (₹) *</label>
+                        <input type="number" name="price" id="edit-price" min="0" required style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Current Stock *</label>
+                        <input type="number" name="stock" id="edit-stock" min="0" required style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;">
+                    </div>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Category *</label>
+                    <select name="category" id="edit-category" required style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box; background-color: white;">
+                        <option value="Produce">Produce</option>
+                        <option value="Dairy">Dairy</option>
+                        <option value="Bakery">Bakery</option>
+                        <option value="Pantry">Pantry</option>
+                        <option value="Meat">Meat</option>
+                        <option value="Frozen">Frozen</option>
+                        <option value="Beverages">Beverages</option>
+                        <option value="Snacks">Snacks</option>
+                        <option value="General">General</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Image URL</label>
+                    <input type="url" name="image_url" id="edit-image-url" placeholder="https://example.com/image.jpg" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;">
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top: 10px;">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.edit-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const name = this.getAttribute('data-name');
+                const price = this.getAttribute('data-price');
+                const category = this.getAttribute('data-category');
+                const stock = this.getAttribute('data-stock');
+                const imageUrl = this.getAttribute('data-image');
+
+                const form = document.getElementById('edit-form');
+                form.action = `/admin/{{ retailer.slug }}/inventory/${id}/edit`;
+
+                document.getElementById('edit-name').value = name;
+                document.getElementById('edit-price').value = price;
+                document.getElementById('edit-category').value = category;
+                document.getElementById('edit-stock').value = stock;
+                document.getElementById('edit-image-url').value = imageUrl || '';
+
+                document.getElementById('edit-product-modal').style.display = 'block';
+            });
+        });
+    </script>
 {% endblock %}
