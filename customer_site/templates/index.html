@@ -570,7 +570,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ amount: total })
         });
-        
+
         const data = await response.json();
 
         // Check if the backend rejected the request (e.g., bad API keys)
@@ -581,7 +581,7 @@
         }
 
         const options = {
-            "key": "YOUR_ACTUAL_TEST_KEY_ID", // MUST match your Razorpay Dashboard
+            "key": data.key_id, // MUST match your Razorpay Dashboard
             "amount": data.amount,
             "currency": "INR",
             "name": "{{ retailer.business_name }}",
@@ -589,18 +589,18 @@
             "order_id": data.order_id,
             "handler": function (response) {
                 alert("Payment Successful! ID: " + response.razorpay_payment_id);
-                emptyCart(); 
-                window.location.reload(); 
+                emptyCart();
+                window.location.reload();
             },
             "prefill": {
                 "name": "{{ user.full_name if user else '' }}",
                 "email": "{{ user.email if user else '' }}"
             },
-            "theme": { "color": "#2E7D32" } 
+            "theme": { "color": "#2E7D32" }
         };
 
         const rzp1 = new Razorpay(options);
-        
+
         // Add Razorpay's native error handler
         rzp1.on('payment.failed', function (response){
             console.error("Razorpay Error:", response.error);
