@@ -30,3 +30,7 @@ class ProductCreate(BaseModel):
     category: str = Field(..., min_length=1)
     stock: int = Field(..., ge=0)
     image_url: str = ""
+
+class OrderCreate(BaseModel):
+    amount: float = Field(..., gt=0)
+    currency: str = "INR"

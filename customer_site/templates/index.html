@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
     <!-- Side Drawer -->
@@ -214,7 +215,7 @@
                         <span>Grand Total</span>
                         <span id="grand-total">₹0</span>
                     </div>
-                    <button class="proceed-btn">Proceed to Pay</button>
+                    <button class="proceed-btn" onclick="startPayment()">Proceed to Pay</button>
                 </div>
             </aside>
         </div>
@@ -281,6 +282,67 @@
         function emptyCart() {
             cart = {};
             saveCart();
+        }
+
+        async function startPayment() {
+            if (Object.keys(cart).length === 0) {
+                alert("Your cart is empty.");
+                return;
+            }
+
+            const totalAmount = Object.values(cart).reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const proceedBtn = document.querySelector('.proceed-btn');
+            proceedBtn.disabled = true;
+            proceedBtn.innerText = "Processing...";
+
+            try {
+                const response = await fetch('/shop/{{ retailer.slug }}/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: totalAmount, currency: "INR" })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json();
+                    throw new Error(errData.detail || "Payment initiation failed");
+                }
+
+                const data = await response.json();
+
+                const options = {
+                    "key": data.key_id,
+                    "amount": data.amount,
+                    "currency": data.currency,
+                    "name": "{{ retailer.business_name }}",
+                    "description": "Purchase from " + "{{ retailer.business_name }}",
+                    "order_id": data.order_id,
+                    "handler": function (response){
+                        alert("Payment successful! Payment ID: " + response.razorpay_payment_id);
+                        emptyCart();
+                        toggleCart();
+                    },
+                    "prefill": {
+                        "name": "{{ user.full_name if user else '' }}",
+                        "email": "{{ user.email if user else '' }}"
+                    },
+                    "theme": {
+                        "color": "#10b981"
+                    }
+                };
+
+                const rzp1 = new Razorpay(options);
+                rzp1.on('payment.failed', function (response){
+                    alert("Payment failed! Reason: " + response.error.description);
+                });
+                rzp1.open();
+
+            } catch (error) {
+                console.error("Error starting payment:", error);
+                alert("Uh! oh! Something went wrong: " + error.message);
+            } finally {
+                proceedBtn.disabled = false;
+                proceedBtn.innerText = "Proceed to Pay";
+            }
         }
 
         function saveCart() {
