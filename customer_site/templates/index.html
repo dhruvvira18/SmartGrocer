@@ -284,67 +284,6 @@
             saveCart();
         }
 
-        async function startPayment() {
-            if (Object.keys(cart).length === 0) {
-                alert("Your cart is empty.");
-                return;
-            }
-
-            const totalAmount = Object.values(cart).reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const proceedBtn = document.querySelector('.proceed-btn');
-            proceedBtn.disabled = true;
-            proceedBtn.innerText = "Processing...";
-
-            try {
-                const response = await fetch('/shop/{{ retailer.slug }}/create-order', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ amount: totalAmount, currency: "INR" })
-                });
-
-                if (!response.ok) {
-                    const errData = await response.json();
-                    throw new Error(errData.detail || "Payment initiation failed");
-                }
-
-                const data = await response.json();
-
-                const options = {
-                    "key": data.key_id,
-                    "amount": data.amount,
-                    "currency": data.currency,
-                    "name": "{{ retailer.business_name }}",
-                    "description": "Purchase from " + "{{ retailer.business_name }}",
-                    "order_id": data.order_id,
-                    "handler": function (response){
-                        alert("Payment successful! Payment ID: " + response.razorpay_payment_id);
-                        emptyCart();
-                        toggleCart();
-                    },
-                    "prefill": {
-                        "name": "{{ user.full_name if user else '' }}",
-                        "email": "{{ user.email if user else '' }}"
-                    },
-                    "theme": {
-                        "color": "#10b981"
-                    }
-                };
-
-                const rzp1 = new Razorpay(options);
-                rzp1.on('payment.failed', function (response){
-                    alert("Payment failed! Reason: " + response.error.description);
-                });
-                rzp1.open();
-
-            } catch (error) {
-                console.error("Error starting payment:", error);
-                alert("Uh! oh! Something went wrong: " + error.message);
-            } finally {
-                proceedBtn.disabled = false;
-                proceedBtn.innerText = "Proceed to Pay";
-            }
-        }
-
         function saveCart() {
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartUI();
@@ -620,10 +559,60 @@
             container.innerHTML = html;
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            updateCartUI();
-            loadFavorites();
+       async function startPayment() {
+    let total = 0;
+    Object.values(cart).forEach(item => total += item.price * item.quantity);
+    if (total <= 0) return alert("Cart is empty!");
+
+    try {
+        const response = await fetch(`/shop/{{ retailer.slug }}/create-order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: total })
         });
+
+        const data = await response.json();
+
+        // Check if the backend rejected the request (e.g., bad API keys)
+        if (!response.ok) {
+            console.error("Backend Error:", data);
+            alert("Order creation failed: " + (data.detail || "Unknown error"));
+            return; // Stop here, do not open Razorpay
+        }
+
+        const options = {
+            "key": data.key_id, // MUST match your Razorpay Dashboard
+            "amount": data.amount,
+            "currency": "INR",
+            "name": "{{ retailer.business_name }}",
+            "description": "SmartGrocer Order",
+            "order_id": data.order_id,
+            "handler": function (response) {
+                alert("Payment Successful! ID: " + response.razorpay_payment_id);
+                emptyCart();
+                window.location.reload();
+            },
+            "prefill": {
+                "name": "{{ user.full_name if user else '' }}",
+                "email": "{{ user.email if user else '' }}"
+            },
+            "theme": { "color": "#2E7D32" }
+        };
+
+        const rzp1 = new Razorpay(options);
+
+        // Add Razorpay's native error handler
+        rzp1.on('payment.failed', function (response){
+            console.error("Razorpay Error:", response.error);
+            alert("Transaction Failed: " + response.error.reason);
+        });
+
+        rzp1.open();
+    } catch (err) {
+        alert("Network or initialization error. Check console.");
+        console.error(err);
+    }
+}
     </script>
 </body>
 </html>

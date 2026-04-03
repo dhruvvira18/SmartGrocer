@@ -1,19 +1,10 @@
-import os
 import sys
 from pathlib import Path
 from typing import Annotated
 
-from dotenv import load_dotenv
-import razorpay
-
 BASE_DIR = Path(__file__).resolve().parent 
 ROOT_DIR = BASE_DIR.parent 
 sys.path.append(str(ROOT_DIR))
-
-load_dotenv(ROOT_DIR / ".env")
-
-RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
-RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
 
 from fastapi import FastAPI, Form, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -25,7 +16,19 @@ from pydantic import ValidationError, EmailStr
 import models
 from database import engine, get_db
 from schemas import UserLogin, RatingUpdate, OrderCreate
+import os
+import time
 
+from dotenv import load_dotenv
+import razorpay
+
+load_dotenv(ROOT_DIR / ".env")
+
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID", "rzp_test_SXTskXDYRZKbMw")
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "XZiu70Deo7oXCU4rU2Q8Ryiu")
+
+# Use your Test Keys from Razorpay Dashboard > Settings > API Keys
+client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
@@ -241,41 +244,27 @@ async def rate_product(
     return {"rating": product.rating, "review_count": product.review_count}
 
 @app.post("/shop/{slug}/create-order")
-async def create_order(
-    slug: str,
-    order_data: OrderCreate,
-    db: DbSession
-):
+async def create_order(slug: str, order_data: OrderCreate, db: DbSession):
     retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
     if not retailer:
         raise HTTPException(status_code=404, detail="Store not found")
 
-    if not RAZORPAY_KEY_ID or not RAZORPAY_KEY_SECRET:
-        raise HTTPException(status_code=500, detail="Payment gateway not configured")
+    # Amount must be in paise (1 INR = 100 paise) [cite: 11]
+    amount_paise = int(round(order_data.amount * 100))
+
+    data = {
+        "amount": amount_paise,
+        "currency": "INR",
+        "receipt": f"receipt_{slug}_{int(time.time())}",
+        "payment_capture": 1
+    }
 
     try:
-        client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
-
-        # Calculate amount in paise safely avoiding float rounding issues
-        amount_in_paise = int(round(order_data.amount * 100))
-
-        payment_data = {
-            "amount": amount_in_paise,
-            "currency": order_data.currency,
-            "receipt": f"receipt_{slug}_{amount_in_paise}",
-            "notes": {
-                "retailer_slug": slug
-            }
-        }
-
-        order = client.order.create(data=payment_data)
-
+        razorpay_order = client.order.create(data=data)
         return {
-            "order_id": order["id"],
-            "key_id": RAZORPAY_KEY_ID,
-            "amount": amount_in_paise,
-            "currency": order_data.currency
+            "order_id": razorpay_order['id'],
+            "amount": amount_paise,
+            "key_id": RAZORPAY_KEY_ID
         }
     except Exception as e:
-        print(f"Razorpay Error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to create payment order")
+        raise HTTPException(status_code=400, detail=str(e))

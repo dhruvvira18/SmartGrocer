@@ -32,5 +32,4 @@ class ProductCreate(BaseModel):
     image_url: str = ""
 
 class OrderCreate(BaseModel):
-    amount: float = Field(..., gt=0)
-    currency: str = "INR"
+    amount: float
