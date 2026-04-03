@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
     <!-- Side Drawer -->
@@ -214,7 +215,7 @@
                         <span>Grand Total</span>
                         <span id="grand-total">₹0</span>
                     </div>
-                    <button class="proceed-btn">Proceed to Pay</button>
+                    <button class="proceed-btn" onclick="startPayment()">Proceed to Pay</button>
                 </div>
             </aside>
         </div>
@@ -558,10 +559,60 @@
             container.innerHTML = html;
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            updateCartUI();
-            loadFavorites();
+       async function startPayment() {
+    let total = 0;
+    Object.values(cart).forEach(item => total += item.price * item.quantity);
+    if (total <= 0) return alert("Cart is empty!");
+
+    try {
+        const response = await fetch(`/shop/{{ retailer.slug }}/create-order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: total })
         });
+        
+        const data = await response.json();
+
+        // Check if the backend rejected the request (e.g., bad API keys)
+        if (!response.ok) {
+            console.error("Backend Error:", data);
+            alert("Order creation failed: " + (data.detail || "Unknown error"));
+            return; // Stop here, do not open Razorpay
+        }
+
+        const options = {
+            "key": "YOUR_ACTUAL_TEST_KEY_ID", // MUST match your Razorpay Dashboard
+            "amount": data.amount,
+            "currency": "INR",
+            "name": "{{ retailer.business_name }}",
+            "description": "SmartGrocer Order",
+            "order_id": data.order_id,
+            "handler": function (response) {
+                alert("Payment Successful! ID: " + response.razorpay_payment_id);
+                emptyCart(); 
+                window.location.reload(); 
+            },
+            "prefill": {
+                "name": "{{ user.full_name if user else '' }}",
+                "email": "{{ user.email if user else '' }}"
+            },
+            "theme": { "color": "#2E7D32" } 
+        };
+
+        const rzp1 = new Razorpay(options);
+        
+        // Add Razorpay's native error handler
+        rzp1.on('payment.failed', function (response){
+            console.error("Razorpay Error:", response.error);
+            alert("Transaction Failed: " + response.error.reason);
+        });
+
+        rzp1.open();
+    } catch (err) {
+        alert("Network or initialization error. Check console.");
+        console.error(err);
+    }
+}
     </script>
 </body>
 </html>

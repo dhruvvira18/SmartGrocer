@@ -15,8 +15,12 @@ from pydantic import ValidationError, EmailStr
 
 import models
 from database import engine, get_db
-from schemas import UserLogin, RatingUpdate
+from schemas import UserLogin, RatingUpdate, OrderCreate
+import razorpay
+import time
 
+# Use your Test Keys from Razorpay Dashboard > Settings > API Keys
+client = razorpay.Client(auth=("rzp_test_SXTskXDYRZKbMw", "XZiu70Deo7oXCU4rU2Q8Ryiu"))
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
@@ -230,3 +234,25 @@ async def rate_product(
     db.refresh(product)
 
     return {"rating": product.rating, "review_count": product.review_count}
+
+@app.post("/shop/{slug}/create-order")
+async def create_order(slug: str, order_data: OrderCreate, db: DbSession):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
+    if not retailer:
+        raise HTTPException(status_code=404, detail="Store not found")
+
+    # Amount must be in paise (1 INR = 100 paise) [cite: 11]
+    amount_paise = int(order_data.amount * 100)
+    
+    data = {
+        "amount": amount_paise,
+        "currency": "INR",
+        "receipt": f"receipt_{slug}_{int(time.time())}",
+        "payment_capture": 1 
+    }
+    
+    try:
+        razorpay_order = client.order.create(data=data)
+        return {"order_id": razorpay_order['id'], "amount": amount_paise}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
