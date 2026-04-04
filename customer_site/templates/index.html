@@ -76,6 +76,7 @@
                         <option value="low-high">Price (Low → High)</option>
                         <option value="high-low">Price (High → Low)</option>
                         <option value="favorites">Favorites</option>
+                        <option value="rating">Highest Rated</option>
                     </select>
                 </div>
             </div>
@@ -127,7 +128,7 @@
                     <div class="horizontal-scroll-container">
                         {% for product in products %}
                         {% if product.category == category %}
-                        <div class="product-card" data-id="{{ product.id }}" data-name="{{ product.name|lower }}" data-category="{{ product.category }}" data-price="{{ product.price }}">
+                        <div class="product-card" data-id="{{ product.id }}" data-name="{{ product.name|lower }}" data-category="{{ product.category }}" data-price="{{ product.price }}" data-rating="{{ product.rating }}">
                             <div class="product-image">
                                 <button class="favorite-btn" onclick="toggleFavorite('{{ product.id }}')">
                                     <i class="fas fa-heart"></i>
@@ -484,6 +485,10 @@
                         const aFav = favorites.includes(a.dataset.id) ? 1 : 0;
                         const bFav = favorites.includes(b.dataset.id) ? 1 : 0;
                         return bFav - aFav; // Favorited items first
+                    } else if (sortVal === 'rating') {
+                        const ratingA = parseFloat(a.dataset.rating) || 0;
+                        const ratingB = parseFloat(b.dataset.rating) || 0;
+                        return ratingB - ratingA; // Highest rated first
                     } else {
                         const priceA = parseFloat(a.dataset.price);
                         const priceB = parseFloat(b.dataset.price);
