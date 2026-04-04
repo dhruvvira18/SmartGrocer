@@ -33,3 +33,14 @@ class ProductCreate(BaseModel):
 
 class OrderCreate(BaseModel):
     amount: float
+    delivery_address: str
+
+class UserResponse(BaseModel):
+    id: int
+    email: EmailStr
+    full_name: str
+    role: str
+    saved_address: str
+
+    class Config:
+        from_attributes = True

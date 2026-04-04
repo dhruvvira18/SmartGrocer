@@ -1,6 +1,7 @@
-from sqlalchemy import String, ForeignKey, UniqueConstraint
+from sqlalchemy import String, ForeignKey, UniqueConstraint, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, MappedAsDataclass, DeclarativeBase, relationship
-from typing import List
+from typing import List, Optional
+from datetime import datetime
 
 class Base(MappedAsDataclass, DeclarativeBase):
     pass
@@ -22,6 +23,7 @@ class User(Base):
     password: Mapped[str] = mapped_column(String(255))
     full_name: Mapped[str] = mapped_column(String(100), default="New User")
     role: Mapped[str] = mapped_column(String(20), default="shopper") # admin, shopper
+    saved_address: Mapped[str] = mapped_column(String(255), default="")
 
     retailer: Mapped["Retailer"] = relationship(back_populates="users", init=False)
 
@@ -42,3 +44,29 @@ class Product(Base):
     category: Mapped[str] = mapped_column(String(50), default="General")
 
     retailer: Mapped["Retailer"] = relationship(back_populates="products", init=False)
+
+class Order(Base):
+    __tablename__ = "orders"
+    id: Mapped[int] = mapped_column(primary_key=True, init=False, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    retailer_id: Mapped[int] = mapped_column(ForeignKey("retailers.id"))
+    total_amount: Mapped[float] = mapped_column()
+    delivery_address: Mapped[str] = mapped_column(String(255))
+    payment_id: Mapped[Optional[str]] = mapped_column(String(100), nullable=True, default=None)
+    status: Mapped[str] = mapped_column(String(50), default="pending")
+    timestamp: Mapped[datetime] = mapped_column(DateTime, default_factory=datetime.utcnow)
+
+    user: Mapped["User"] = relationship(init=False)
+    retailer: Mapped["Retailer"] = relationship(init=False)
+    items: Mapped[List["OrderItem"]] = relationship(back_populates="order", init=False)
+
+class OrderItem(Base):
+    __tablename__ = "order_items"
+    id: Mapped[int] = mapped_column(primary_key=True, init=False, autoincrement=True)
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
+    quantity: Mapped[int] = mapped_column()
+    price_at_purchase: Mapped[float] = mapped_column()
+
+    order: Mapped["Order"] = relationship(back_populates="items", init=False)
+    product: Mapped["Product"] = relationship(init=False)
