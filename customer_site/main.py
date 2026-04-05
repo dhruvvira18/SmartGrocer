@@ -110,7 +110,8 @@ async def update_profile(
     request: Request,
     db: DbSession,
     full_name: Annotated[str, Form()],
-    email: Annotated[EmailStr, Form()]
+    email: Annotated[EmailStr, Form()],
+    address: Annotated[str | None, Form()] = None
 ):
     retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
     if not retailer:
@@ -139,6 +140,7 @@ async def update_profile(
 
     user.full_name = full_name
     user.email = email
+    user.address = address
     db.commit()
 
     return RedirectResponse(url=f"/shop/{slug}/profile?msg=Profile+updated+successfully.", status_code=303)

@@ -22,6 +22,7 @@ class User(Base):
     password: Mapped[str] = mapped_column(String(255))
     full_name: Mapped[str] = mapped_column(String(100), default="New User")
     role: Mapped[str] = mapped_column(String(20), default="shopper") # admin, shopper
+    address: Mapped[str | None] = mapped_column(String(255), default=None, nullable=True)
 
     retailer: Mapped["Retailer"] = relationship(back_populates="users", init=False)
 
