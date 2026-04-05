@@ -216,10 +216,22 @@
                         <span>Grand Total</span>
                         <span id="grand-total">₹0</span>
                     </div>
-                    <button class="proceed-btn" onclick="startPayment()">Proceed to Pay</button>
+                    <button class="proceed-btn" onclick="openAddressModal()">Proceed to Pay</button>
                 </div>
             </aside>
         </div>
+    </div>
+
+    <!-- Delivery Address Modal -->
+    <div id="address-modal-overlay" class="drawer-overlay" onclick="closeAddressModal()"></div>
+    <div id="address-modal" class="side-drawer" style="width: 100%; max-width: 400px; right: 0; left: auto; background: white; padding: 2rem; box-shadow: -4px 0 15px rgba(0,0,0,0.1); display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s ease;">
+        <button class="close-btn" onclick="closeAddressModal()" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer;"><i class="fas fa-times"></i></button>
+        <h2 style="margin-bottom: 1.5rem; color: var(--text-dark);"><i class="fas fa-map-marker-alt"></i> Confirm Delivery Address</h2>
+        <div class="input-group" style="margin-bottom: 1.5rem;">
+            <textarea id="delivery_address" name="delivery_address" class="floating-input" placeholder=" " rows="4" style="width: 100%; padding: 1rem; border: 1px solid var(--border-color); border-radius: 8px; font-family: 'Poppins', sans-serif;">{{ user.saved_address if user and user.saved_address else '' }}</textarea>
+            <label for="delivery_address" class="floating-label" style="position: absolute; left: 1rem; top: 1rem; color: var(--text-light); transition: 0.2s ease; background: white; padding: 0 0.5rem; pointer-events: none;">Delivery Address</label>
+        </div>
+        <button class="proceed-btn" onclick="confirmAndPay()" style="width: 100%; padding: 1rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Confirm & Pay</button>
     </div>
 
     <script>
@@ -564,7 +576,27 @@
             container.innerHTML = html;
         }
 
-       async function startPayment() {
+        function openAddressModal() {
+            let total = 0;
+            Object.values(cart).forEach(item => total += item.price * item.quantity);
+            if (total <= 0) return alert("Cart is empty!");
+
+            document.getElementById('address-modal-overlay').classList.add('open');
+            document.getElementById('address-modal').style.transform = 'translateX(0)';
+        }
+
+        function closeAddressModal() {
+            document.getElementById('address-modal-overlay').classList.remove('open');
+            document.getElementById('address-modal').style.transform = 'translateX(100%)';
+        }
+
+       async function confirmAndPay() {
+    const addressInput = document.getElementById('delivery_address').value.trim();
+    if (!addressInput) {
+        alert("Please provide a delivery address.");
+        return;
+    }
+
     let total = 0;
     Object.values(cart).forEach(item => total += item.price * item.quantity);
     if (total <= 0) return alert("Cart is empty!");
