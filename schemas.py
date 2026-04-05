@@ -31,6 +31,10 @@ class ProductCreate(BaseModel):
     stock: int = Field(..., ge=0)
     image_url: str = ""
 
+class ProductDealUpdate(BaseModel):
+    is_daily_deal: bool
+    discount_percentage: int = Field(..., ge=0, le=100)
+
 class OrderCreate(BaseModel):
     amount: float
 

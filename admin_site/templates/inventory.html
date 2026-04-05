@@ -52,6 +52,7 @@
                     <td style="padding: 15px;">
                         <div style="display: flex; gap: 10px; align-items: center;">
                             <button class="edit-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}" data-category="{{ product.category }}" data-stock="{{ product.stock }}" data-image="{{ product.image_url }}" style="background: none; border: none; cursor: pointer; color: var(--primary); font-size: 16px;"><i class="fas fa-edit"></i> Edit</button>
+                            <button class="deal-btn" data-id="{{ product.id }}" data-deal="{{ 'true' if product.is_daily_deal else 'false' }}" data-discount="{{ product.discount_percentage }}" style="background: none; border: none; cursor: pointer; color: #ff9800; font-size: 16px;"><i class="fas fa-tags"></i> Manage Deal</button>
                             <form action="/admin/{{ retailer.slug }}/inventory/{{ product.id }}/add-stock" method="post" style="display: flex; gap: 5px; margin: 0;">
                                 <input type="number" name="amount" min="1" value="10" required style="width: 60px; padding: 5px; border: 1px solid #ced4da; border-radius: 4px;">
                                 <button type="submit" class="btn-primary" style="padding: 5px 10px; font-size: 14px;">+ Add Stock</button>
@@ -154,7 +155,42 @@
         </div>
     </div>
 
+    <!-- Manage Deal Modal -->
+    <div id="deal-product-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="background: white; width: 400px; margin: 100px auto; padding: 30px; border-radius: 15px; position: relative;">
+            <button onclick="document.getElementById('deal-product-modal').style.display='none'" style="position: absolute; right: 20px; top: 20px; border: none; background: none; font-size: 20px; cursor: pointer;">&times;</button>
+            <h2 style="margin-top: 0; margin-bottom: 20px; color: var(--primary);">Manage Daily Deal</h2>
+            <form id="deal-form" method="post" style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" name="is_daily_deal" id="deal-is-active" value="true" style="width: 20px; height: 20px;">
+                    <label for="deal-is-active" style="font-weight: 600;">Enable Daily Deal</label>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Discount Percentage (%)</label>
+                    <input type="number" name="discount_percentage" id="deal-discount" min="0" max="100" value="0" required style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;">
+                </div>
+                <button type="submit" class="btn-primary" style="margin-top: 10px;">Save Deal</button>
+            </form>
+        </div>
+    </div>
+
     <script>
+        document.querySelectorAll('.deal-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                const isDeal = this.getAttribute('data-deal') === 'true';
+                const discount = this.getAttribute('data-discount');
+
+                const form = document.getElementById('deal-form');
+                form.action = `/admin/{{ retailer.slug }}/inventory/${id}/deal`;
+
+                document.getElementById('deal-is-active').checked = isDeal;
+                document.getElementById('deal-discount').value = discount || 0;
+
+                document.getElementById('deal-product-modal').style.display = 'block';
+            });
+        });
+
         document.querySelectorAll('.edit-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');

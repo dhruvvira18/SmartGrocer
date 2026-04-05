@@ -42,8 +42,14 @@ class Product(Base):
     review_count: Mapped[int] = mapped_column(default=0)
     stock: Mapped[int] = mapped_column(default=0)
     category: Mapped[str] = mapped_column(String(50), default="General")
+    is_daily_deal: Mapped[bool] = mapped_column(default=False)
+    discount_percentage: Mapped[int] = mapped_column(default=0)
 
     retailer: Mapped["Retailer"] = relationship(back_populates="products", init=False)
+
+    @property
+    def deal_price(self) -> int:
+        return int(self.price * (1 - self.discount_percentage / 100))
 
 class Order(Base):
     __tablename__ = "orders"
