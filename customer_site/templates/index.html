@@ -565,6 +565,13 @@
         }
 
        async function startPayment() {
+    const userAddress = "{{ user.address if user and user.address else '' }}";
+    if (!userAddress.trim()) {
+        alert("Please fill out your address in your Profile to proceed.");
+        window.location.href = "/shop/{{ retailer.slug }}/profile?err=Please+update+your+address+before+checkout";
+        return;
+    }
+
     let total = 0;
     Object.values(cart).forEach(item => total += item.price * item.quantity);
     if (total <= 0) return alert("Cart is empty!");
