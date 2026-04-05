@@ -1,5 +1,6 @@
-from sqlalchemy import String, ForeignKey, UniqueConstraint
+from sqlalchemy import String, ForeignKey, UniqueConstraint, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, MappedAsDataclass, DeclarativeBase, relationship
+from datetime import datetime
 from typing import List
 
 class Base(MappedAsDataclass, DeclarativeBase):
@@ -43,3 +44,27 @@ class Product(Base):
     category: Mapped[str] = mapped_column(String(50), default="General")
 
     retailer: Mapped["Retailer"] = relationship(back_populates="products", init=False)
+
+class Order(Base):
+    __tablename__ = "orders"
+    id: Mapped[int] = mapped_column(primary_key=True, init=False, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    retailer_id: Mapped[int] = mapped_column(ForeignKey("retailers.id"))
+    total_amount: Mapped[float] = mapped_column()
+    status: Mapped[str] = mapped_column(String(20), default="Pending")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+
+    user: Mapped["User"] = relationship(init=False)
+    retailer: Mapped["Retailer"] = relationship(init=False)
+    items: Mapped[List["OrderItem"]] = relationship(back_populates="order", init=False)
+
+class OrderItem(Base):
+    __tablename__ = "order_items"
+    id: Mapped[int] = mapped_column(primary_key=True, init=False, autoincrement=True)
+    order_id: Mapped[int] = mapped_column(ForeignKey("orders.id"))
+    product_id: Mapped[int] = mapped_column(ForeignKey("products.id"))
+    quantity: Mapped[int] = mapped_column()
+    price_at_purchase: Mapped[float] = mapped_column()
+
+    order: Mapped["Order"] = relationship(back_populates="items", init=False)
+    product: Mapped["Product"] = relationship(init=False)

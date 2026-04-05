@@ -15,7 +15,7 @@ from pydantic import ValidationError, EmailStr
 
 import models
 from database import engine, get_db
-from schemas import UserLogin, RatingUpdate, OrderCreate
+from schemas import UserLogin, RatingUpdate, OrderCreate, PaymentSuccessPayload
 import os
 import time
 
@@ -270,3 +270,80 @@ async def create_order(slug: str, order_data: OrderCreate, db: DbSession):
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@app.post("/shop/{slug}/payment-success")
+async def payment_success(
+    slug: str,
+    payload: PaymentSuccessPayload,
+    request: Request,
+    db: DbSession
+):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
+    if not retailer:
+        raise HTTPException(status_code=404, detail="Store not found")
+
+    shopper_id = request.cookies.get("shopper_id")
+    if not shopper_id:
+        raise HTTPException(status_code=401, detail="User not logged in")
+
+    try:
+        user = db.query(models.User).filter(models.User.id == int(shopper_id)).first()
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid user")
+
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    total_amount = sum(item.price * item.quantity for item in payload.cart)
+
+    new_order = models.Order(
+        user_id=user.id,
+        retailer_id=retailer.id,
+        total_amount=total_amount,
+        status="Pending"
+    )
+    db.add(new_order)
+    db.flush()
+
+    for item in payload.cart:
+        order_item = models.OrderItem(
+            order_id=new_order.id,
+            product_id=item.product_id,
+            quantity=item.quantity,
+            price_at_purchase=item.price
+        )
+        db.add(order_item)
+
+    db.commit()
+
+    return {"status": "success", "order_id": new_order.id}
+
+@app.get("/shop/{slug}/orders", response_class=HTMLResponse)
+async def my_orders(slug: str, request: Request, db: DbSession):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
+    if not retailer:
+        raise HTTPException(status_code=404, detail="Store not found")
+
+    shopper_id = request.cookies.get("shopper_id")
+    if not shopper_id:
+        return RedirectResponse(url=f"/shop/{slug}", status_code=303)
+
+    try:
+        user = db.query(models.User).filter(models.User.id == int(shopper_id)).first()
+    except ValueError:
+        return RedirectResponse(url=f"/shop/{slug}", status_code=303)
+
+    if not user:
+        return RedirectResponse(url=f"/shop/{slug}", status_code=303)
+
+    orders = db.query(models.Order).filter(
+        models.Order.user_id == user.id,
+        models.Order.retailer_id == retailer.id
+    ).order_by(models.Order.created_at.desc()).all()
+
+    return templates.TemplateResponse("orders.html", {
+        "request": request,
+        "retailer": retailer,
+        "user": user,
+        "orders": orders
+    })

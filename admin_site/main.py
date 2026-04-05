@@ -213,3 +213,46 @@ async def admin_login(
         return templates.TemplateResponse("login.html", {"request": request, "error": "Access Denied: Admin only."})
     except ValidationError as e:
         return templates.TemplateResponse("login.html", {"request": request, "error": e.errors()[0]["msg"]})
+
+@app.get("/admin/{slug}/orders", response_class=HTMLResponse)
+async def orders(slug: str, request: Request, db: DbSession):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
+    if not retailer:
+        raise HTTPException(status_code=404, detail="Retailer not found")
+
+    orders = db.query(models.Order).filter(
+        models.Order.retailer_id == retailer.id
+    ).order_by(models.Order.created_at.desc()).all()
+
+    return templates.TemplateResponse("orders.html", {
+        "request": request,
+        "retailer": retailer,
+        "orders": orders
+    })
+
+@app.post("/admin/{slug}/orders/{order_id}/complete")
+async def complete_order(slug: str, order_id: int, request: Request, db: DbSession):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
+    if not retailer:
+        raise HTTPException(status_code=404, detail="Retailer not found")
+
+    order = db.query(models.Order).filter(
+        models.Order.id == order_id,
+        models.Order.retailer_id == retailer.id
+    ).first()
+
+    if not order:
+        raise HTTPException(status_code=404, detail="Order not found")
+
+    if order.status != "Completed":
+        order.status = "Completed"
+
+        # Deduct stock for each order item
+        for item in order.items:
+            product = db.query(models.Product).filter(models.Product.id == item.product_id).first()
+            if product:
+                product.stock = max(0, product.stock - item.quantity)
+
+        db.commit()
+
+    return RedirectResponse(url=f"/admin/{slug}/orders", status_code=303)

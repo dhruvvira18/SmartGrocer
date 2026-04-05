@@ -33,3 +33,11 @@ class ProductCreate(BaseModel):
 
 class OrderCreate(BaseModel):
     amount: float
+
+class OrderCartItem(BaseModel):
+    product_id: int
+    quantity: int
+    price: float
+
+class PaymentSuccessPayload(BaseModel):
+    cart: list[OrderCartItem]

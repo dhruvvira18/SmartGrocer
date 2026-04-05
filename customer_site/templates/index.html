@@ -18,7 +18,7 @@
             <a href="javascript:void(0)" onclick="navigateTo('favorites'); toggleDrawer();"><i class="fas fa-heart"></i> Favorites</a>
             <a href="javascript:void(0)" onclick="openCart(); toggleDrawer();"><i class="fas fa-shopping-cart"></i> My Cart</a>
             <a href="/shop/{{ retailer.slug }}/profile"><i class="far fa-user"></i> Profile</a>
-            <a href="#"><i class="fas fa-box"></i> My Orders</a>
+            <a href="/shop/{{ retailer.slug }}/orders"><i class="fas fa-box"></i> My Orders</a>
             <a href="/shop/{{ retailer.slug }}/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </div>
     </div>
@@ -599,10 +599,29 @@
             "name": "{{ retailer.business_name }}",
             "description": "SmartGrocer Order",
             "order_id": data.order_id,
-            "handler": function (response) {
-                alert("Payment Successful! ID: " + response.razorpay_payment_id);
-                emptyCart();
-                window.location.reload();
+            "handler": async function (response) {
+                // Post payment success to backend to create order
+                const cartArray = Object.keys(cart).map(id => ({
+                    product_id: parseInt(id),
+                    quantity: cart[id].quantity,
+                    price: cart[id].price
+                }));
+                try {
+                    const successResp = await fetch(`/shop/{{ retailer.slug }}/payment-success`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ cart: cartArray })
+                    });
+                    if (successResp.ok) {
+                        alert("Payment Successful! ID: " + response.razorpay_payment_id);
+                        emptyCart();
+                        window.location.href = `/shop/{{ retailer.slug }}/orders`;
+                    } else {
+                        alert("Payment succeeded, but order creation failed. Please contact support.");
+                    }
+                } catch (e) {
+                    alert("Payment succeeded, but an error occurred creating the order.");
+                }
             },
             "prefill": {
                 "name": "{{ user.full_name if user else '' }}",
