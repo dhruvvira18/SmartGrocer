@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Orders | {{ retailer.business_name }}{% endblock %}
+
+{% block content %}
+<style>
+    .orders-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        margin-top: 20px;
+    }
+    .orders-table th, .orders-table td {
+        padding: 16px;
+        text-align: left;
+        border-bottom: 1px solid #EEE;
+    }
+    .orders-table th {
+        background-color: #F8F9FA;
+        font-weight: 600;
+        color: #555;
+    }
+    .orders-table tr:hover {
+        background-color: #F8F9FA;
+    }
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.85em;
+        font-weight: 500;
+    }
+    .status-Pending {
+        background-color: #FFF3CD;
+        color: #856404;
+    }
+    .status-Completed {
+        background-color: #D4EDDA;
+        color: #155724;
+    }
+    .action-btn {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9em;
+    }
+    .action-btn:hover {
+        background-color: #1b5e20;
+    }
+</style>
+
+<h1 style="color: var(--primary);">Orders</h1>
+
+<table class="orders-table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if orders %}
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') if order.created_at else '' }}</td>
+                <td>{{ order.user.full_name }} ({{ order.user.email }})</td>
+                <td>
+                    <ul style="margin: 0; padding-left: 20px; font-size: 0.9em; color: #555;">
+                    {% for item in order.items %}
+                        <li>{{ item.quantity }}x {{ item.product.name }}</li>
+                    {% endfor %}
+                    </ul>
+                </td>
+                <td style="font-weight: 600;">₹{{ "%.0f"|format(order.total_amount) }}</td>
+                <td><span class="status-badge status-{{ order.status }}">{{ order.status }}</span></td>
+                <td>
+                    {% if order.status == 'Pending' %}
+                    <form method="POST" action="/admin/{{ retailer.slug }}/orders/{{ order.id }}/complete" style="display:inline;">
+                        <button type="submit" class="action-btn">Mark Completed</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 30px; color: #777;">No orders found.</td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
+
+{% endblock %}

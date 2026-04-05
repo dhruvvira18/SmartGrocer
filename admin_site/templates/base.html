@@ -80,7 +80,7 @@
         {% if retailer %}
             <a href="/admin/{{ retailer.slug }}/dashboard" class="{% if request.url.path.endswith('/dashboard') %}active{% endif %}"><i class="fas fa-chart-line"></i> Dashboard</a>
             <a href="/admin/{{ retailer.slug }}/inventory" class="{% if request.url.path.endswith('/inventory') %}active{% endif %}"><i class="fas fa-boxes"></i> Inventory</a>
-            <a href="#" class="{% if request.url.path.endswith('/orders') %}active{% endif %}"><i class="fas fa-shopping-cart"></i> Orders</a>
+            <a href="/admin/{{ retailer.slug }}/orders" class="{% if request.url.path.endswith('/orders') %}active{% endif %}"><i class="fas fa-shopping-cart"></i> Orders</a>
             <a href="#" class="{% if request.url.path.endswith('/settings') %}active{% endif %}"><i class="fas fa-cog"></i> Settings</a>
         {% endif %}
     </div>
