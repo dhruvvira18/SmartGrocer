@@ -7,11 +7,43 @@
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px;">
         <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: var(--card-shadow, 0 4px 6px rgba(0,0,0,0.1));">
             <h3>Low Stock Alerts</h3>
-            <p style="color: red;">Items &lt; 10 units: {{ low_stock_count }}</p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                {% for product in low_stock_products %}
+                    <div style="border-left: 4px solid red; background: #fff5f5; padding: 10px; border-radius: 4px;">
+                        <strong>{{ product.name }}</strong><br>
+                        <span style="color: red;">Current Stock: {{ product.stock }}</span>
+                    </div>
+                {% else %}
+                    <p>No low stock items.</p>
+                {% endfor %}
+            </div>
         </div>
         <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: var(--card-shadow, 0 4px 6px rgba(0,0,0,0.1));">
             <h3>Customer Database</h3>
-            <p>Total Registered Users: {{ customer_count }}</p>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                <thead>
+                    <tr style="text-align: left; border-bottom: 1px solid #ddd;">
+                        <th style="padding: 8px;">Name</th>
+                        <th style="padding: 8px;">Email</th>
+                        <th style="padding: 8px;">Address</th>
+                        <th style="padding: 8px;">Total Orders Placed</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user, total_orders in customers_data %}
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 8px;">{{ user.full_name }}</td>
+                            <td style="padding: 8px;">{{ user.email }}</td>
+                            <td style="padding: 8px;">{{ user.address or 'N/A' }}</td>
+                            <td style="padding: 8px;">{{ total_orders }}</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="4" style="padding: 8px; text-align: center;">No customers found.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
             <button class="btn-primary">Send Discount Notification</button>
         </div>
     </div>
