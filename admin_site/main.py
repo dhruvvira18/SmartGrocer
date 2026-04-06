@@ -11,6 +11,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from pydantic import ValidationError, EmailStr
 
 import models
@@ -214,21 +215,27 @@ async def dashboard(slug: str, request: Request, db: DbSession):
     if not retailer:
         raise HTTPException(status_code=404, detail="Retailer not found")
 
-    low_stock_count = db.query(models.Product).filter(
+    low_stock_products = db.query(models.Product).filter(
         models.Product.retailer_id == retailer.id,
         models.Product.stock < 10
-    ).count()
+    ).all()
 
-    customer_count = db.query(models.User).filter(
-        models.User.retailer_id == retailer.id,
-        models.User.role == "shopper"
-    ).count()
+    customers_data = db.query(
+        models.User,
+        func.count(models.Order.id).label('total_orders')
+    ).join(
+        models.Order, models.User.id == models.Order.user_id
+    ).filter(
+        models.Order.retailer_id == retailer.id
+    ).group_by(
+        models.User.id
+    ).all()
 
     return templates.TemplateResponse("dashboard.html", {
         "request": request,
         "retailer": retailer,
-        "low_stock_count": low_stock_count,
-        "customer_count": customer_count
+        "low_stock_products": low_stock_products,
+        "customers_data": customers_data
     })
 
 @app.post("/login")
