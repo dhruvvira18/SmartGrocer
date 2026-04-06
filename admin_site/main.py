@@ -15,7 +15,7 @@ from pydantic import ValidationError, EmailStr
 
 import models
 from database import engine, get_db
-from schemas import UserLogin, ProductCreate
+from schemas import UserLogin, ProductCreate, ProductDealUpdate
 
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
@@ -165,6 +165,47 @@ async def edit_product(
             "retailer": retailer,
             "products": products,
             "error": f"Failed to update product: {e.errors()[0]['msg']}"
+        })
+
+@app.post("/admin/{slug}/inventory/{product_id}/deal", response_class=HTMLResponse)
+async def manage_deal(
+    slug: str,
+    product_id: int,
+    request: Request,
+    db: DbSession,
+    discount_percentage: Annotated[int, Form()] = 0,
+    is_daily_deal: Annotated[bool, Form()] = False
+):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
+    if not retailer:
+        raise HTTPException(status_code=404, detail="Retailer not found")
+
+    product = db.query(models.Product).filter(
+        models.Product.id == product_id,
+        models.Product.retailer_id == retailer.id
+    ).first()
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    try:
+        deal_data = ProductDealUpdate(
+            is_daily_deal=is_daily_deal,
+            discount_percentage=discount_percentage
+        )
+
+        product.is_daily_deal = deal_data.is_daily_deal
+        product.discount_percentage = deal_data.discount_percentage
+        db.commit()
+
+        return RedirectResponse(url=f"/admin/{slug}/inventory", status_code=303)
+    except ValidationError as e:
+        products = db.query(models.Product).filter(models.Product.retailer_id == retailer.id).all()
+        return templates.TemplateResponse("inventory.html", {
+            "request": request,
+            "retailer": retailer,
+            "products": products,
+            "error": f"Failed to update deal: {e.errors()[0]['msg']}"
         })
 
 @app.get("/admin/{slug}/dashboard", response_class=HTMLResponse)
