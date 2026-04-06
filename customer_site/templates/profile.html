@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        // Apply theme early to prevent flash
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-theme');
+            document.documentElement.classList.remove('dark-theme');
+        } else {
+            document.documentElement.classList.add('dark-theme');
+            document.documentElement.classList.remove('light-theme');
+        }
+    </script>
+
     <meta charset="UTF-8">
     <title>{{ retailer.business_name }} | My Profile</title>
     <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
@@ -41,7 +53,7 @@
             {% endif %}
 
             {% if success %}
-            <div style="background: rgba(0, 255, 102, 0.1); color: var(--primary); border: 1px solid rgba(0, 255, 102, 0.2); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center; font-weight: 500;">
+            <div style="background: var(--success-bg); color: var(--primary); border: 1px solid var(--success-border); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center; font-weight: 500;">
                 {{ success }}
             </div>
             {% endif %}

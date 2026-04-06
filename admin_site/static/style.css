@@ -1,7 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 /* --- Variables --- */
-:root {
+
+:root, :root.dark-theme {
   --primary: #00FF66;
   --secondary: #00E65C;
   --accent: #FBC02D;
@@ -12,7 +13,29 @@
   --white: #1A1D24;
   --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   --radius-m: 16px;
+  --border-color: rgba(255, 255, 255, 0.05);
+  --border-color-light: rgba(255, 255, 255, 0.1);
+  --btn-text: #0F1115;
+  --search-bg: rgba(15, 17, 21, 0.8);
 }
+
+:root.light-theme {
+  --primary: #2E7D32;
+  --secondary: #66BB6A;
+  --accent: #FBC02D;
+  --background: #F9FAF7;
+  --section-bg: #F0F7F2;
+  --text: #263238;
+  --text-secondary: #666666;
+  --white: #ffffff;
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  --radius-m: 16px;
+  --border-color: #e5e7eb;
+  --border-color-light: #d1d5db;
+  --btn-text: #ffffff;
+  --search-bg: #f3f4f6;
+}
+
 
 /* --- Global Reset --- */
 * {
@@ -60,6 +83,14 @@ body {
   filter: blur(40px);
 }
 
+:root.light-theme .organic-bg::before {
+    background: radial-gradient(circle, rgba(162,224,174,0.4) 0%, rgba(255,255,255,0) 70%);
+    filter: none;
+    top: -10%;
+    width: 50%;
+    height: 50%;
+}
+
 .organic-bg::after {
   content: "";
   position: absolute;
@@ -72,6 +103,11 @@ body {
   filter: blur(40px);
 }
 
+:root.light-theme .organic-bg::after {
+    background: radial-gradient(circle, rgba(162,224,174,0.3) 0%, rgba(255,255,255,0) 70%);
+    filter: none;
+}
+
 .login-card {
   width: 380px;
   padding: 32px;
@@ -80,9 +116,15 @@ body {
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
   z-index: 1;
   text-align: center;
+}
+
+:root.light-theme .login-card {
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid #ddd;
 }
 
 .logo-text {
@@ -102,17 +144,25 @@ body {
   width: 100%;
   padding: 18px 14px 6px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-color-light);
   color: var(--text);
   outline: none;
   transition: all 0.3s ease;
   font-family: inherit;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--border-color);
+}
+
+:root.light-theme .floating-input {
+    background: transparent;
 }
 
 .floating-input:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px rgba(0, 255, 102, 0.15);
+}
+
+:root.light-theme .floating-input:focus {
+    box-shadow: 0 0 0 4px rgba(102, 187, 106, 0.25);
 }
 
 .floating-label {
@@ -138,7 +188,7 @@ body {
   border: none;
   border-radius: 50px;
   background: var(--primary);
-  color: #0F1115;
+  color: var(--btn-text);
   font-weight: 700;
   cursor: pointer;
   transition: 0.3s;
