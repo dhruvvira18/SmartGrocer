@@ -73,7 +73,7 @@
                     {% if product.is_daily_deal %}
                     <div class="product-card" data-id="{{ product.id }}" data-name="{{ product.name|lower }}" data-category="{{ product.category }}" data-price="{{ product.price }}" data-rating="{{ product.rating }}">
                         <div class="product-image" style="position: relative;">
-                            <div class="deal-badge" style="position: absolute; top: 10px; right: 10px; background: red; color: white; padding: 2px 5px; border-radius: 5px; font-weight: bold; z-index: 10;">{{ product.discount_percentage }}% OFF</div>
+                                <div class="deal-badge" style="position: absolute; top: 10px; left: 10px; background: var(--primary); color: #0F1115; padding: 4px 8px; border-radius: 50px; font-weight: 800; font-size: 0.8rem; z-index: 10; box-shadow: 0 4px 10px rgba(0,255,102,0.3);">{{ product.discount_percentage }}% OFF</div>
                             <button class="favorite-btn" onclick="toggleFavorite('{{ product.id }}')">
                                 <i class="fas fa-heart"></i>
                             </button>
@@ -92,7 +92,7 @@
                                 {% endfor %}
                                 <span class="rating-count">({{ product.review_count }})</span>
                             </div>
-                            <p class="price"><del style="color: #888;">₹{{ "%.0f"|format(product.price) }}</del> <strong style="color: red;">₹{{ "%.0f"|format(product.deal_price) }}</strong></p>
+                            <p class="price"><del style="color: var(--text-secondary);">₹{{ "%.0f"|format(product.price) }}</del> <strong style="color: var(--primary);">₹{{ "%.0f"|format(product.deal_price) }}</strong></p>
                             <div class="product-actions">
                                 <div class="cart-action-container" data-id="{{ product.id }}">
                                     <button class="add-to-cart-btn" onclick="addToCart({{ product.id }}, '{{ product.name|replace("'", "\\'") }}', {{ product.deal_price }}, '{{ product.image_url }}')">
@@ -190,7 +190,7 @@
                         <div class="product-card" data-id="{{ product.id }}" data-name="{{ product.name|lower }}" data-category="{{ product.category }}" data-price="{{ product.price }}" data-rating="{{ product.rating }}">
                             <div class="product-image" style="position: relative;">
                                 {% if product.is_daily_deal %}
-                                <div class="deal-badge" style="position: absolute; top: 10px; right: 10px; background: red; color: white; padding: 2px 5px; border-radius: 5px; font-weight: bold; z-index: 10;">{{ product.discount_percentage }}% OFF</div>
+                                <div class="deal-badge" style="position: absolute; top: 10px; left: 10px; background: var(--primary); color: #0F1115; padding: 4px 8px; border-radius: 50px; font-weight: 800; font-size: 0.8rem; z-index: 10; box-shadow: 0 4px 10px rgba(0,255,102,0.3);">{{ product.discount_percentage }}% OFF</div>
                                 {% endif %}
                                 <button class="favorite-btn" onclick="toggleFavorite('{{ product.id }}')">
                                     <i class="fas fa-heart"></i>
@@ -211,7 +211,7 @@
                                 <span class="rating-count">({{ product.review_count }})</span>
                             </div>
                             {% if product.is_daily_deal %}
-                            <p class="price"><del style="color: #888;">₹{{ "%.0f"|format(product.price) }}</del> <strong style="color: red;">₹{{ "%.0f"|format(product.deal_price) }}</strong></p>
+                            <p class="price"><del style="color: var(--text-secondary);">₹{{ "%.0f"|format(product.price) }}</del> <strong style="color: var(--primary);">₹{{ "%.0f"|format(product.deal_price) }}</strong></p>
                             {% else %}
                             <p class="price">₹{{ "%.0f"|format(product.price) }}</p>
                             {% endif %}
@@ -401,7 +401,7 @@
             document.getElementById('grand-total').innerText = '₹' + total;
 
             if (Object.keys(cart).length === 0) {
-                list.innerHTML = '<p style="text-align:center; padding: 2rem;">Your cart is empty.</p>';
+                    list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-secondary);">Your cart is empty.</p>';
             }
         }
 

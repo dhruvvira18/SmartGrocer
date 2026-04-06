@@ -10,45 +10,54 @@
         body {
             margin: 0;
             font-family: 'Poppins', sans-serif;
-            background-color: var(--background, #F0F7F2);
+            background-color: var(--background, #0F1115);
+            color: var(--text, #ffffff);
             display: flex;
             height: 100vh;
             overflow: hidden;
         }
         .sidebar {
             width: 250px;
-            background-color: var(--primary, #2E7D32);
-            color: white;
+            background-color: var(--section-bg, #1A1D24);
+            color: var(--text-secondary, #a0aab2);
             display: flex;
             flex-direction: column;
             padding-top: 30px;
-            border-radius: 0 15px 15px 0;
-            box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
-            margin: 10px 0 10px 0;
-            height: calc(100vh - 20px);
+            border-radius: 0 20px 20px 0;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            margin: 0;
+            height: 100vh;
             z-index: 10;
         }
         .sidebar h2 {
             text-align: left;
             margin-bottom: 40px;
             padding-left: 30px;
+            color: var(--text, #ffffff);
+        }
+        .sidebar h2 span {
+            color: var(--primary, #00FF66);
         }
         .sidebar a {
-            color: white;
+            color: var(--text-secondary, #a0aab2);
             text-decoration: none;
             padding: 12px 20px;
             margin: 5px 20px;
             display: block;
-            font-weight: 400;
-            border-radius: 8px;
-            transition: background-color 0.2s;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.2s;
         }
         .sidebar a:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text, #ffffff);
         }
         .sidebar a.active {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(0, 255, 102, 0.1);
+            color: var(--primary, #00FF66);
             font-weight: 600;
+            box-shadow: inset 4px 0 0 var(--primary, #00FF66);
         }
         .sidebar a i {
             margin-right: 15px;
@@ -61,22 +70,25 @@
             overflow-y: auto;
         }
         .btn-primary {
-            background-color: var(--primary, #2E7D32);
-            color: white;
+            background-color: var(--primary, #00FF66);
+            color: #0F1115;
             border: none;
             padding: 10px 20px;
-            border-radius: 8px;
+            border-radius: 50px;
+            font-weight: 700;
             cursor: pointer;
             font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
         }
         .btn-primary:hover {
-            opacity: 0.9;
+            background-color: var(--secondary, #00E65C);
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
         }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <h2>SmartGrocer</h2>
+        <h2>Smart<span>Grocer</span></h2>
         {% if retailer %}
             <a href="/admin/{{ retailer.slug }}/dashboard" class="{% if request.url.path.endswith('/dashboard') %}active{% endif %}"><i class="fas fa-chart-line"></i> Dashboard</a>
             <a href="/admin/{{ retailer.slug }}/inventory" class="{% if request.url.path.endswith('/inventory') %}active{% endif %}"><i class="fas fa-boxes"></i> Inventory</a>

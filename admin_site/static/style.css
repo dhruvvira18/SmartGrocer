@@ -2,14 +2,15 @@
 
 /* --- Variables --- */
 :root {
-  --primary: #2E7D32;
-  --secondary: #66BB6A;
+  --primary: #00FF66;
+  --secondary: #00E65C;
   --accent: #FBC02D;
-  --background: #F9FAF7;
-  --section-bg: #F0F7F2;
-  --text: #263238;
-  --white: #ffffff;
-  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  --background: #0F1115;
+  --section-bg: #1A1D24;
+  --text: #ffffff;
+  --text-secondary: #a0aab2;
+  --white: #1A1D24;
+  --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   --radius-m: 16px;
 }
 
@@ -44,18 +45,19 @@ body {
   width: 100%;
   height: 100%;
   z-index: 0;
-  background: linear-gradient(135deg, #d4f0d9 0%, #ffffff 100%);
+  background: var(--background);
 }
 
 .organic-bg::before {
   content: "";
   position: absolute;
-  top: -10%;
+  top: -20%;
   left: -10%;
-  width: 50%;
-  height: 50%;
-  background: radial-gradient(circle, rgba(162,224,174,0.4) 0%, rgba(255,255,255,0) 70%);
+  width: 70%;
+  height: 70%;
+  background: radial-gradient(circle, rgba(0, 255, 102, 0.15) 0%, rgba(15, 17, 21, 0) 70%);
   border-radius: 50%;
+  filter: blur(40px);
 }
 
 .organic-bg::after {
@@ -65,18 +67,20 @@ body {
   right: -10%;
   width: 60%;
   height: 60%;
-  background: radial-gradient(circle, rgba(162,224,174,0.3) 0%, rgba(255,255,255,0) 70%);
+  background: radial-gradient(circle, rgba(0, 255, 102, 0.1) 0%, rgba(15, 17, 21, 0) 70%);
   border-radius: 50%;
+  filter: blur(40px);
 }
 
 .login-card {
   width: 380px;
   padding: 32px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.55);
+  background: rgba(26, 29, 36, 0.6);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   z-index: 1;
   text-align: center;
 }
@@ -98,23 +102,24 @@ body {
   width: 100%;
   padding: 18px 14px 6px;
   border-radius: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text);
   outline: none;
   transition: all 0.3s ease;
   font-family: inherit;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .floating-input:focus {
-  border-color: var(--secondary);
-  box-shadow: 0 0 0 4px rgba(102, 187, 106, 0.25);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(0, 255, 102, 0.15);
 }
 
 .floating-label {
   position: absolute;
   left: 14px;
   top: 14px;
-  color: #999;
+  color: var(--text-secondary);
   font-size: 14px;
   transition: 0.2s ease all;
   pointer-events: none;
@@ -131,16 +136,17 @@ body {
   width: 100%;
   padding: 12px;
   border: none;
-  border-radius: 12px;
+  border-radius: 50px;
   background: var(--primary);
-  color: white;
-  font-weight: 600;
+  color: #0F1115;
+  font-weight: 700;
   cursor: pointer;
   transition: 0.3s;
 }
 
 .login-btn:hover {
   background: var(--secondary);
+  box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
 }
 
 /* --- Main Site Elements (Navbar, Container) --- */
