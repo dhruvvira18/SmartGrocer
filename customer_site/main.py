@@ -31,6 +31,7 @@ RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET", "XZiu70Deo7oXCU4rU2Q8Ryiu
 client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
+app.mount("/media", StaticFiles(directory="media"), name="media")
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 DbSession = Annotated[Session, Depends(get_db)]

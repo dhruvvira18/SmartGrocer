@@ -20,6 +20,7 @@ from schemas import UserLogin, ProductCreate, ProductDealUpdate
 
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
+app.mount("/media", StaticFiles(directory="media"), name="media")
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 DbSession = Annotated[Session, Depends(get_db)]
