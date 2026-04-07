@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        // Apply theme early to prevent flash
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-theme');
+            document.documentElement.classList.remove('dark-theme');
+        } else {
+            document.documentElement.classList.add('dark-theme');
+            document.documentElement.classList.remove('light-theme');
+        }
+    </script>
+
   <meta charset="UTF-8" />
   <title>{{ retailer.business_name }} | SmartGrocer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,8 +25,8 @@
 
   <div class="login-card">
     <div class="logo-text">SmartGrocer</div>
-    <h2 style="margin-bottom:5px;">{{ retailer.business_name }}</h2>
-    <p id="flow-label" style="color: #666; margin-bottom: 20px;">Enter your email to get started</p>
+    <h2 style="margin-bottom:5px; color: var(--text);">{{ retailer.business_name }}</h2>
+    <p id="flow-label" style="color: var(--text-secondary); margin-bottom: 20px;">Enter your email to get started</p>
 
     <div id="js-error" class="error-msg" style="display: none; background-color: #fdeaea; color: #b71c1c; border: 1px solid #f5c6cb; padding: 10px; border-radius: 5px; margin-bottom: 15px; font-size: 0.9em;"></div>
 
@@ -30,9 +42,9 @@
 
         <div id="step2-container" style="display: none;">
             
-            <button type="button" onclick="resetToStep1()" style="width: 100%; background: none; border: 1px solid #2E7D32; color: #2E7D32; padding: 8px; border-radius: 5px; margin-bottom: 20px; cursor: pointer; font-size: 0.85em; display: flex; justify-content: space-between; align-items: center;">
-                <span id="display-email" style="font-weight: 600;"></span>
-                <span style="font-size: 0.9em; text-decoration: underline;">Change</span>
+            <button type="button" onclick="resetToStep1()" style="width: 100%; background: rgba(0,255,102,0.1); border: 1px solid rgba(0,255,102,0.2); color: var(--primary); padding: 12px; border-radius: 50px; margin-bottom: 20px; cursor: pointer; font-size: 0.85em; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s;">
+                <span id="display-email" style="font-weight: 600; padding-left: 10px;"></span>
+                <span style="font-size: 0.9em; text-decoration: underline; padding-right: 10px;">Change</span>
             </button>
 
             <div id="signup-fields" style="display: none;">

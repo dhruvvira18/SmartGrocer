@@ -278,6 +278,17 @@ async def orders(slug: str, request: Request, db: DbSession):
         "orders": orders
     })
 
+@app.get("/admin/{slug}/settings", response_class=HTMLResponse)
+async def settings(slug: str, request: Request, db: DbSession):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
+    if not retailer:
+        raise HTTPException(status_code=404, detail="Retailer not found")
+
+    return templates.TemplateResponse("settings.html", {
+        "request": request,
+        "retailer": retailer
+    })
+
 @app.post("/admin/{slug}/orders/{order_id}/complete")
 async def complete_order(slug: str, order_id: int, request: Request, db: DbSession):
     retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()

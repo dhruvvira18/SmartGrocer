@@ -19,10 +19,10 @@
     </div>
     {% endif %}
 
-    <div style="background: white; border-radius: 15px; box-shadow: var(--card-shadow, 0 4px 6px rgba(0,0,0,0.1)); overflow: hidden;">
+    <div style="background: var(--section-bg); border-radius: 20px; box-shadow: var(--card-shadow, 0 4px 20px rgba(0,0,0,0.3)); border: 1px solid rgba(255,255,255,0.05); overflow: hidden;">
         <table style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
-                <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+                <tr style="background-color: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary);">
                     <th style="padding: 15px;">Image</th>
                     <th style="padding: 15px;">Name</th>
                     <th style="padding: 15px;">Category</th>
@@ -33,28 +33,28 @@
             </thead>
             <tbody>
                 {% for product in products %}
-                <tr style="border-bottom: 1px solid #dee2e6;">
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); color: var(--text);">
                     <td style="padding: 15px;">
                         {% if product.image_url %}
                             <img src="{{ product.image_url }}" alt="{{ product.name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
                         {% else %}
-                            <div style="width: 50px; height: 50px; background-color: #e9ecef; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                <i class="fas fa-image" style="color: #adb5bd;"></i>
+                            <div style="width: 50px; height: 50px; background-color: rgba(255,255,255,0.05); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-image" style="color: var(--text-secondary);"></i>
                             </div>
                         {% endif %}
                     </td>
                     <td style="padding: 15px; font-weight: 600;">{{ product.name }}</td>
-                    <td style="padding: 15px;">{{ product.category }}</td>
+                    <td style="padding: 15px; color: var(--text-secondary);">{{ product.category }}</td>
                     <td style="padding: 15px;">₹{{ product.price }}</td>
                     <td style="padding: 15px;">
-                        <span style="{% if product.stock < 10 %}color: red; font-weight: bold;{% endif %}">{{ product.stock }}</span>
+                        <span style="{% if product.stock < 10 %}color: #ff4757; font-weight: bold;{% endif %}">{{ product.stock }}</span>
                     </td>
                     <td style="padding: 15px;">
                         <div style="display: flex; gap: 10px; align-items: center;">
                             <button class="edit-btn" data-id="{{ product.id }}" data-name="{{ product.name }}" data-price="{{ product.price }}" data-category="{{ product.category }}" data-stock="{{ product.stock }}" data-image="{{ product.image_url }}" style="background: none; border: none; cursor: pointer; color: var(--primary); font-size: 16px;"><i class="fas fa-edit"></i> Edit</button>
-                            <button class="deal-btn" data-id="{{ product.id }}" data-deal="{{ 'true' if product.is_daily_deal else 'false' }}" data-discount="{{ product.discount_percentage }}" style="background: none; border: none; cursor: pointer; color: #ff9800; font-size: 16px;"><i class="fas fa-tags"></i> Manage Deal</button>
+                            <button class="deal-btn" data-id="{{ product.id }}" data-deal="{{ 'true' if product.is_daily_deal else 'false' }}" data-discount="{{ product.discount_percentage }}" style="background: none; border: none; cursor: pointer; color: var(--accent); font-size: 16px;"><i class="fas fa-tags"></i> Manage Deal</button>
                             <form action="/admin/{{ retailer.slug }}/inventory/{{ product.id }}/add-stock" method="post" style="display: flex; gap: 5px; margin: 0;">
-                                <input type="number" name="amount" min="1" value="10" required style="width: 60px; padding: 5px; border: 1px solid #ced4da; border-radius: 4px;">
+                                <input type="number" name="amount" min="1" value="10" required style="width: 60px; padding: 5px; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; background: rgba(255,255,255,0.05); color: var(--text);">
                                 <button type="submit" class="btn-primary" style="padding: 5px 10px; font-size: 14px;">+ Add Stock</button>
                             </form>
                         </div>
@@ -62,7 +62,7 @@
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="6" style="padding: 20px; text-align: center; color: #6c757d;">No products found. Start by adding one!</td>
+                    <td colspan="6" style="padding: 20px; text-align: center; color: var(--text-secondary);">No products found. Start by adding one!</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -70,28 +70,28 @@
     </div>
 
     <!-- Add Product Modal -->
-    <div id="add-product-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
-        <div style="background: white; width: 500px; margin: 100px auto; padding: 30px; border-radius: 15px; position: relative;">
-            <button onclick="document.getElementById('add-product-modal').style.display='none'" style="position: absolute; right: 20px; top: 20px; border: none; background: none; font-size: 20px; cursor: pointer;">&times;</button>
+    <div id="add-product-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; backdrop-filter: blur(5px);">
+        <div style="background: var(--section-bg); width: 500px; margin: 100px auto; padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+            <button onclick="document.getElementById('add-product-modal').style.display='none'" style="position: absolute; right: 20px; top: 20px; border: none; background: none; font-size: 20px; cursor: pointer; color: var(--text-secondary);">&times;</button>
             <h2 style="margin-top: 0; margin-bottom: 20px; color: var(--primary);">Add New Product</h2>
             <form action="/admin/{{ retailer.slug }}/inventory" method="post" style="display: flex; flex-direction: column; gap: 15px;">
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Product Name *</label>
-                    <input type="text" name="name" required style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-secondary);">Product Name *</label>
+                    <input type="text" name="name" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; box-sizing: border-box; background: rgba(255,255,255,0.05); color: var(--text);">
                 </div>
                 <div style="display: flex; gap: 15px;">
                     <div style="flex: 1;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Price (₹) *</label>
-                        <input type="number" name="price" min="0" required style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-secondary);">Price (₹) *</label>
+                        <input type="number" name="price" min="0" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; box-sizing: border-box; background: rgba(255,255,255,0.05); color: var(--text);">
                     </div>
                     <div style="flex: 1;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Initial Stock *</label>
-                        <input type="number" name="stock" min="0" required style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-secondary);">Initial Stock *</label>
+                        <input type="number" name="stock" min="0" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; box-sizing: border-box; background: rgba(255,255,255,0.05); color: var(--text);">
                     </div>
                 </div>
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Category *</label>
-                    <select name="category" required style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box; background-color: white;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-secondary);">Category *</label>
+                    <select name="category" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; box-sizing: border-box; background-color: var(--background); color: var(--text);">
                         <option value="Produce">Produce</option>
                         <option value="Dairy">Dairy</option>
                         <option value="Bakery">Bakery</option>
@@ -104,8 +104,8 @@
                     </select>
                 </div>
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Image URL</label>
-                    <input type="url" name="image_url" placeholder="https://example.com/image.jpg" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-secondary);">Image URL</label>
+                    <input type="url" name="image_url" placeholder="https://example.com/image.jpg" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; box-sizing: border-box; background: rgba(255,255,255,0.05); color: var(--text);">
                 </div>
                 <button type="submit" class="btn-primary" style="margin-top: 10px;">Save Product</button>
             </form>
@@ -113,28 +113,28 @@
     </div>
 
     <!-- Edit Product Modal -->
-    <div id="edit-product-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
-        <div style="background: white; width: 500px; margin: 100px auto; padding: 30px; border-radius: 15px; position: relative;">
-            <button onclick="document.getElementById('edit-product-modal').style.display='none'" style="position: absolute; right: 20px; top: 20px; border: none; background: none; font-size: 20px; cursor: pointer;">&times;</button>
+    <div id="edit-product-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; backdrop-filter: blur(5px);">
+        <div style="background: var(--section-bg); width: 500px; margin: 100px auto; padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+            <button onclick="document.getElementById('edit-product-modal').style.display='none'" style="position: absolute; right: 20px; top: 20px; border: none; background: none; font-size: 20px; cursor: pointer; color: var(--text-secondary);">&times;</button>
             <h2 style="margin-top: 0; margin-bottom: 20px; color: var(--primary);">Edit Product</h2>
             <form id="edit-form" method="post" style="display: flex; flex-direction: column; gap: 15px;">
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Product Name *</label>
-                    <input type="text" name="name" id="edit-name" required style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-secondary);">Product Name *</label>
+                    <input type="text" name="name" id="edit-name" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; box-sizing: border-box; background: rgba(255,255,255,0.05); color: var(--text);">
                 </div>
                 <div style="display: flex; gap: 15px;">
                     <div style="flex: 1;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Price (₹) *</label>
-                        <input type="number" name="price" id="edit-price" min="0" required style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-secondary);">Price (₹) *</label>
+                        <input type="number" name="price" id="edit-price" min="0" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; box-sizing: border-box; background: rgba(255,255,255,0.05); color: var(--text);">
                     </div>
                     <div style="flex: 1;">
-                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Current Stock *</label>
-                        <input type="number" name="stock" id="edit-stock" min="0" required style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-secondary);">Current Stock *</label>
+                        <input type="number" name="stock" id="edit-stock" min="0" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; box-sizing: border-box; background: rgba(255,255,255,0.05); color: var(--text);">
                     </div>
                 </div>
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Category *</label>
-                    <select name="category" id="edit-category" required style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box; background-color: white;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-secondary);">Category *</label>
+                    <select name="category" id="edit-category" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; box-sizing: border-box; background-color: var(--background); color: var(--text);">
                         <option value="Produce">Produce</option>
                         <option value="Dairy">Dairy</option>
                         <option value="Bakery">Bakery</option>
@@ -147,8 +147,8 @@
                     </select>
                 </div>
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Image URL</label>
-                    <input type="url" name="image_url" id="edit-image-url" placeholder="https://example.com/image.jpg" style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-secondary);">Image URL</label>
+                    <input type="url" name="image_url" id="edit-image-url" placeholder="https://example.com/image.jpg" style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; box-sizing: border-box; background: rgba(255,255,255,0.05); color: var(--text);">
                 </div>
                 <button type="submit" class="btn-primary" style="margin-top: 10px;">Save Changes</button>
             </form>
@@ -156,18 +156,18 @@
     </div>
 
     <!-- Manage Deal Modal -->
-    <div id="deal-product-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
-        <div style="background: white; width: 400px; margin: 100px auto; padding: 30px; border-radius: 15px; position: relative;">
-            <button onclick="document.getElementById('deal-product-modal').style.display='none'" style="position: absolute; right: 20px; top: 20px; border: none; background: none; font-size: 20px; cursor: pointer;">&times;</button>
+    <div id="deal-product-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; backdrop-filter: blur(5px);">
+        <div style="background: var(--section-bg); width: 400px; margin: 100px auto; padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+            <button onclick="document.getElementById('deal-product-modal').style.display='none'" style="position: absolute; right: 20px; top: 20px; border: none; background: none; font-size: 20px; cursor: pointer; color: var(--text-secondary);">&times;</button>
             <h2 style="margin-top: 0; margin-bottom: 20px; color: var(--primary);">Manage Daily Deal</h2>
             <form id="deal-form" method="post" style="display: flex; flex-direction: column; gap: 15px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" name="is_daily_deal" id="deal-is-active" value="true" style="width: 20px; height: 20px;">
-                    <label for="deal-is-active" style="font-weight: 600;">Enable Daily Deal</label>
+                    <input type="checkbox" name="is_daily_deal" id="deal-is-active" value="true" style="width: 20px; height: 20px; accent-color: var(--primary);">
+                    <label for="deal-is-active" style="font-weight: 600; color: var(--text);">Enable Daily Deal</label>
                 </div>
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Discount Percentage (%)</label>
-                    <input type="number" name="discount_percentage" id="deal-discount" min="0" max="100" value="0" required style="width: 100%; padding: 10px; border: 1px solid #ced4da; border-radius: 8px; box-sizing: border-box;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--text-secondary);">Discount Percentage (%)</label>
+                    <input type="number" name="discount_percentage" id="deal-discount" min="0" max="100" value="0" required style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; box-sizing: border-box; background: rgba(255,255,255,0.05); color: var(--text);">
                 </div>
                 <button type="submit" class="btn-primary" style="margin-top: 10px;">Save Deal</button>
             </form>

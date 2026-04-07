@@ -224,3 +224,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Temporary Artifacts
+*.png
+*.log
+smartgrocer.db
+test_shadows.py

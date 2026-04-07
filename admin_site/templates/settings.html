@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Settings | SmartGrocer{% endblock %}
+
+{% block content %}
+<div class="header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+    <h2>Settings</h2>
+</div>
+
+<div class="card" style="background: var(--section-bg, #1A1D24); padding: 30px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px;">
+    <h3 style="margin-bottom: 20px; color: var(--text, #ffffff);">Appearance</h3>
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+            <h4 style="margin: 0; color: var(--text, #ffffff);">Theme Preference</h4>
+            <p style="margin: 5px 0 0; color: var(--text-secondary, #a0aab2); font-size: 0.9em;">Toggle between dark and light themes.</p>
+        </div>
+        <button onclick="toggleTheme()" class="btn-primary" id="theme-toggle-btn" style="display: flex; align-items: center; gap: 8px;">
+            <i class="fas fa-moon" id="theme-icon"></i> <span id="theme-text">Dark Mode</span>
+        </button>
+    </div>
+</div>
+
+{% endblock %}

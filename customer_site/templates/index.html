@@ -7,8 +7,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        // Apply theme early to prevent flash
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        if (savedTheme === 'light') {
+            document.documentElement.classList.add('light-theme');
+            document.documentElement.classList.remove('dark-theme');
+        } else {
+            document.documentElement.classList.add('dark-theme');
+            document.documentElement.classList.remove('light-theme');
+        }
+    </script>
 </head>
-<body>
+<body class="dark-theme">
     <!-- Side Drawer -->
     <div id="side-drawer" class="side-drawer">
         <button class="close-btn" onclick="toggleDrawer()"><i class="fas fa-times"></i></button>
@@ -41,6 +52,9 @@
             </div>
 
             <div class="nav-right">
+                <button onclick="toggleTheme()" class="nav-icon-btn theme-toggle-btn" style="border: none; background: transparent; cursor: pointer;">
+                    <i class="fas fa-moon" id="theme-icon"></i>
+                </button>
                 <a href="/shop/{{ retailer.slug }}/profile" class="nav-icon-btn user-profile-link">
                     <i class="far fa-user"></i>
                     {% if user %}
@@ -73,7 +87,7 @@
                     {% if product.is_daily_deal %}
                     <div class="product-card" data-id="{{ product.id }}" data-name="{{ product.name|lower }}" data-category="{{ product.category }}" data-price="{{ product.price }}" data-rating="{{ product.rating }}">
                         <div class="product-image" style="position: relative;">
-                            <div class="deal-badge" style="position: absolute; top: 10px; right: 10px; background: red; color: white; padding: 2px 5px; border-radius: 5px; font-weight: bold; z-index: 10;">{{ product.discount_percentage }}% OFF</div>
+                                <div class="deal-badge" style="position: absolute; top: 10px; left: 10px; background: var(--primary); color: var(--btn-text); padding: 4px 8px; border-radius: 50px; font-weight: 800; font-size: 0.8rem; z-index: 10; box-shadow: 0 4px 10px rgba(0,255,102,0.3);">{{ product.discount_percentage }}% OFF</div>
                             <button class="favorite-btn" onclick="toggleFavorite('{{ product.id }}')">
                                 <i class="fas fa-heart"></i>
                             </button>
@@ -92,7 +106,7 @@
                                 {% endfor %}
                                 <span class="rating-count">({{ product.review_count }})</span>
                             </div>
-                            <p class="price"><del style="color: #888;">₹{{ "%.0f"|format(product.price) }}</del> <strong style="color: red;">₹{{ "%.0f"|format(product.deal_price) }}</strong></p>
+                            <p class="price"><del style="color: var(--text-secondary);">₹{{ "%.0f"|format(product.price) }}</del> <strong style="color: var(--primary);">₹{{ "%.0f"|format(product.deal_price) }}</strong></p>
                             <div class="product-actions">
                                 <div class="cart-action-container" data-id="{{ product.id }}">
                                     <button class="add-to-cart-btn" onclick="addToCart({{ product.id }}, '{{ product.name|replace("'", "\\'") }}', {{ product.deal_price }}, '{{ product.image_url }}')">
@@ -190,7 +204,7 @@
                         <div class="product-card" data-id="{{ product.id }}" data-name="{{ product.name|lower }}" data-category="{{ product.category }}" data-price="{{ product.price }}" data-rating="{{ product.rating }}">
                             <div class="product-image" style="position: relative;">
                                 {% if product.is_daily_deal %}
-                                <div class="deal-badge" style="position: absolute; top: 10px; right: 10px; background: red; color: white; padding: 2px 5px; border-radius: 5px; font-weight: bold; z-index: 10;">{{ product.discount_percentage }}% OFF</div>
+                                <div class="deal-badge" style="position: absolute; top: 10px; left: 10px; background: var(--primary); color: var(--btn-text); padding: 4px 8px; border-radius: 50px; font-weight: 800; font-size: 0.8rem; z-index: 10; box-shadow: 0 4px 10px rgba(0,255,102,0.3);">{{ product.discount_percentage }}% OFF</div>
                                 {% endif %}
                                 <button class="favorite-btn" onclick="toggleFavorite('{{ product.id }}')">
                                     <i class="fas fa-heart"></i>
@@ -211,7 +225,7 @@
                                 <span class="rating-count">({{ product.review_count }})</span>
                             </div>
                             {% if product.is_daily_deal %}
-                            <p class="price"><del style="color: #888;">₹{{ "%.0f"|format(product.price) }}</del> <strong style="color: red;">₹{{ "%.0f"|format(product.deal_price) }}</strong></p>
+                            <p class="price"><del style="color: var(--text-secondary);">₹{{ "%.0f"|format(product.price) }}</del> <strong style="color: var(--primary);">₹{{ "%.0f"|format(product.deal_price) }}</strong></p>
                             {% else %}
                             <p class="price">₹{{ "%.0f"|format(product.price) }}</p>
                             {% endif %}
@@ -401,7 +415,7 @@
             document.getElementById('grand-total').innerText = '₹' + total;
 
             if (Object.keys(cart).length === 0) {
-                list.innerHTML = '<p style="text-align:center; padding: 2rem;">Your cart is empty.</p>';
+                    list.innerHTML = '<p style="text-align:center; padding: 2rem; color: var(--text-secondary);">Your cart is empty.</p>';
             }
         }
 
@@ -479,6 +493,40 @@
             const container = btn.parentElement.querySelector('.horizontal-scroll-container');
             container.scrollBy({ left: amount, behavior: 'smooth' });
         }
+
+
+        function toggleTheme() {
+            const htmlEl = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (htmlEl.classList.contains('light-theme')) {
+                htmlEl.classList.remove('light-theme');
+                htmlEl.classList.add('dark-theme');
+                localStorage.setItem('theme', 'dark');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            } else {
+                htmlEl.classList.remove('dark-theme');
+                htmlEl.classList.add('light-theme');
+                localStorage.setItem('theme', 'light');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        }
+
+        // Initialize icon
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            const icon = document.getElementById('theme-icon');
+            if(icon) {
+                if (savedTheme === 'light') {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            }
+        });
 
         function syncSearch(val) {
             document.getElementById('product-search').value = val;
