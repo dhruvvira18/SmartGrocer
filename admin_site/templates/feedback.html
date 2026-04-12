@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Customer Feedback | {{ retailer.business_name }}{% endblock %}
+
+{% block content %}
+<style>
+    .feedback-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--section-bg);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        margin-top: 20px;
+    }
+    .feedback-table th, .feedback-table td {
+        padding: 16px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .feedback-table th {
+        background-color: rgba(255,255,255,0.02);
+        font-weight: 600;
+        color: var(--text-secondary);
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .feedback-table td {
+        color: var(--text);
+    }
+    .feedback-table tr:hover {
+        background-color: rgba(255,255,255,0.02);
+    }
+</style>
+
+<h1 style="color: var(--primary);">Customer Feedback</h1>
+
+<table class="feedback-table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Email</th>
+            <th>Message</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if feedbacks %}
+            {% for feedback in feedbacks %}
+            <tr>
+                <td>{{ feedback.created_at.strftime('%Y-%m-%d %H:%M') if feedback.created_at else '' }}</td>
+                <td>{{ feedback.email if feedback.email else 'Anonymous' }}</td>
+                <td>{{ feedback.message }}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="3" style="text-align: center; padding: 30px; color: var(--text-secondary);">No feedback found.</td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
+
+{% endblock %}

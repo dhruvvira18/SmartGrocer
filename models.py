@@ -74,3 +74,12 @@ class OrderItem(Base):
 
     order: Mapped["Order"] = relationship(back_populates="items", init=False)
     product: Mapped["Product"] = relationship(init=False)
+
+class CustomerFeedback(Base):
+    __tablename__ = "customer_feedback"
+    id: Mapped[int] = mapped_column(primary_key=True, init=False, autoincrement=True)
+    retailer_id: Mapped[int] = mapped_column(ForeignKey("retailers.id"))
+    message: Mapped[str] = mapped_column(String(1000))
+    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id"), nullable=True, default=None)
+    email: Mapped[str | None] = mapped_column(String(100), nullable=True, default=None)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())

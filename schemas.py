@@ -35,13 +35,18 @@ class ProductDealUpdate(BaseModel):
     is_daily_deal: bool
     discount_percentage: int = Field(..., ge=0, le=100)
 
-class OrderCreate(BaseModel):
-    amount: float
-
 class OrderCartItem(BaseModel):
     product_id: int
     quantity: int
     price: float
 
+class OrderCreate(BaseModel):
+    amount: float
+    cart: list[OrderCartItem] = []
+
 class PaymentSuccessPayload(BaseModel):
     cart: list[OrderCartItem]
+
+class FeedbackCreate(BaseModel):
+    message: str = Field(..., min_length=1)
+    email: Optional[EmailStr] = None
