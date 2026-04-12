@@ -105,6 +105,37 @@ async def shop_profile(slug: str, request: Request, db: DbSession):
         "error": err
     })
 
+@app.post("/shop/{slug}/feedback")
+async def submit_feedback(
+    slug: str,
+    request: Request,
+    db: DbSession,
+    message: Annotated[str, Form()]
+):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
+    if not retailer:
+        raise HTTPException(status_code=404, detail="Store not found")
+
+    shopper_id = request.cookies.get("shopper_id")
+    user = None
+    if shopper_id:
+        try:
+            user = db.query(models.User).filter(models.User.id == int(shopper_id)).first()
+        except ValueError:
+            pass
+
+    feedback = models.CustomerFeedback(
+        retailer_id=retailer.id,
+        user_id=user.id if user else None,
+        email=user.email if user else None,
+        message=message
+    )
+
+    db.add(feedback)
+    db.commit()
+
+    return {"status": "success"}
+
 @app.post("/shop/{slug}/profile")
 async def update_profile(
     slug: str,
@@ -252,6 +283,16 @@ async def create_order(slug: str, order_data: OrderCreate, db: DbSession):
     if not retailer:
         raise HTTPException(status_code=404, detail="Store not found")
 
+    for item in order_data.cart:
+        product = db.query(models.Product).filter(
+            models.Product.id == item.product_id,
+            models.Product.retailer_id == retailer.id
+        ).first()
+        if not product:
+            raise HTTPException(status_code=400, detail=f"Product {item.product_id} not found.")
+        if item.quantity > product.stock:
+            raise HTTPException(status_code=400, detail=f"Requested quantity exceeds stock for product {product.name}.")
+
     # Amount must be in paise (1 INR = 100 paise) [cite: 11]
     amount_paise = int(round(order_data.amount * 100))
 
@@ -294,6 +335,16 @@ async def payment_success(
 
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
+
+    for item in payload.cart:
+        product = db.query(models.Product).filter(
+            models.Product.id == item.product_id,
+            models.Product.retailer_id == retailer.id
+        ).first()
+        if not product:
+            raise HTTPException(status_code=400, detail=f"Product {item.product_id} not found.")
+        if item.quantity > product.stock:
+            raise HTTPException(status_code=400, detail=f"Requested quantity exceeds stock for product {product.name}.")
 
     total_amount = sum(item.price * item.quantity for item in payload.cart)
 

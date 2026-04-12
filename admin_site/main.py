@@ -279,6 +279,22 @@ async def orders(slug: str, request: Request, db: DbSession):
         "orders": orders
     })
 
+@app.get("/admin/{slug}/feedback", response_class=HTMLResponse)
+async def feedback(slug: str, request: Request, db: DbSession):
+    retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
+    if not retailer:
+        raise HTTPException(status_code=404, detail="Retailer not found")
+
+    feedbacks = db.query(models.CustomerFeedback).filter(
+        models.CustomerFeedback.retailer_id == retailer.id
+    ).order_by(models.CustomerFeedback.created_at.desc()).all()
+
+    return templates.TemplateResponse("feedback.html", {
+        "request": request,
+        "retailer": retailer,
+        "feedbacks": feedbacks
+    })
+
 @app.get("/admin/{slug}/settings", response_class=HTMLResponse)
 async def settings(slug: str, request: Request, db: DbSession):
     retailer = db.query(models.Retailer).filter(models.Retailer.slug == slug).first()
